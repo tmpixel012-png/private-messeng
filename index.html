@@ -4,10 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111827">
-<title>Private Messeng</title>
+<title>Private Messenger</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 body{
   margin:0;
@@ -16,7 +18,8 @@ body{
   font-family:Arial,sans-serif;
 }
 
-button,input{
+button,
+input{
   font:inherit;
 }
 
@@ -203,6 +206,7 @@ h1{
   padding:12px;
   border-top:1px solid #273149;
   padding-bottom:max(12px,env(safe-area-inset-bottom));
+  align-items:center;
 }
 
 .composer input{
@@ -226,6 +230,37 @@ h1{
   cursor:not-allowed;
 }
 
+.attach,
+.voice{
+  width:44px;
+  height:44px;
+  flex:none;
+  border:0;
+  border-radius:12px;
+  background:#202a3e;
+  color:#fff;
+  font-size:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.attach:hover,
+.voice:hover{
+  background:#2a3853;
+}
+
+.voice.recording{
+  background:#dc3545;
+  animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+  0%{opacity:1}
+  50%{opacity:.55}
+  100%{opacity:1}
+}
+
 .empty{
   margin:auto;
   color:#858fa4;
@@ -245,7 +280,96 @@ h1{
   display:none!important;
 }
 
+.file-card{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  min-width:180px;
+}
+
+.file-image{
+  display:block;
+  max-width:100%;
+  max-height:300px;
+  border-radius:10px;
+  object-fit:contain;
+  background:#101827;
+}
+
+.file-name{
+  font-weight:bold;
+  word-break:break-word;
+}
+
+.file-size{
+  color:#aab5c8;
+  font-size:11px;
+}
+
+.file-actions{
+  display:flex;
+  gap:7px;
+}
+
+.file-actions a{
+  display:inline-block;
+  background:#ffffff22;
+  color:#fff;
+  text-decoration:none;
+  padding:7px 10px;
+  border-radius:8px;
+  font-size:12px;
+}
+
+.audio-player{
+  width:260px;
+  max-width:100%;
+}
+
+.upload-status{
+  position:fixed;
+  left:50%;
+  bottom:85px;
+  transform:translateX(-50%);
+  background:#151c2e;
+  border:1px solid #303b55;
+  padding:10px 15px;
+  border-radius:12px;
+  box-shadow:0 10px 30px #0008;
+  z-index:100;
+  font-size:13px;
+}
+
+.progress{
+  width:180px;
+  height:5px;
+  background:#303b55;
+  border-radius:5px;
+  overflow:hidden;
+  margin-top:7px;
+}
+
+.progress-bar{
+  width:0%;
+  height:100%;
+  background:#3b82f6;
+  transition:width .2s;
+}
+
+.record-info{
+  position:fixed;
+  left:50%;
+  bottom:85px;
+  transform:translateX(-50%);
+  background:#151c2e;
+  border:1px solid #303b55;
+  padding:12px 16px;
+  border-radius:12px;
+  z-index:100;
+}
+
 @media(max-width:650px){
+
   .users{
     width:125px;
   }
@@ -271,6 +395,22 @@ h1{
   .bubble{
     max-width:88%;
   }
+
+  .composer{
+    gap:5px;
+    padding-left:6px;
+    padding-right:6px;
+  }
+
+  .attach,
+  .voice{
+    width:40px;
+    height:40px;
+  }
+
+  .send{
+    padding:11px 13px;
+  }
 }
 </style>
 </head>
@@ -278,10 +418,14 @@ h1{
 <body>
 
 <div id="auth" class="auth">
+
   <div class="card">
 
-    <h1>🔒 Private Messeng</h1>
-    <div class="muted">Простой мессенджер для своих</div>
+    <h1>🔒 Private Messenger</h1>
+
+    <div class="muted">
+      Простой мессенджер для своих
+    </div>
 
     <div id="login">
 
@@ -338,6 +482,7 @@ h1{
     <div id="err" class="err"></div>
 
   </div>
+
 </div>
 
 
@@ -350,11 +495,13 @@ h1{
     </div>
 
     <div class="search">
+
       <input
         id="search"
         placeholder="Поиск"
         oninput="renderUsers()"
       >
+
     </div>
 
     <div id="list" class="list"></div>
@@ -377,12 +524,52 @@ h1{
     </div>
 
     <div id="messages" class="messages">
+
       <div class="empty">
         Выберите человека слева
       </div>
+
     </div>
 
+
     <div class="composer">
+
+      <!-- Выбор файла -->
+
+      <button
+        type="button"
+        class="attach"
+        id="attachBtn"
+        onclick="chooseFile()"
+        disabled
+        title="Фото или файл"
+      >
+        📎
+      </button>
+
+      <input
+        type="file"
+        id="fileInput"
+        class="hide"
+        accept="*/*"
+      >
+
+
+      <!-- Голосовое сообщение -->
+
+      <button
+        type="button"
+        class="voice"
+        id="voiceBtn"
+        onclick="toggleRecording()"
+        disabled
+        title="Голосовое сообщение"
+      >
+        🎙️
+      </button>
+
+
+      <!-- Текст -->
 
       <input
         id="text"
@@ -390,6 +577,7 @@ h1{
         disabled
         autocomplete="off"
       >
+
 
       <button
         type="button"
@@ -408,6 +596,28 @@ h1{
 </div>
 
 
+<div id="uploadStatus" class="upload-status hide">
+
+  <div id="uploadText">
+    Загрузка...
+  </div>
+
+  <div class="progress">
+    <div
+      id="progressBar"
+      class="progress-bar"
+    ></div>
+  </div>
+
+</div>
+
+
+<div id="recordInfo" class="record-info hide">
+  🔴 Запись...
+  <span id="recordTime">0:00</span>
+</div>
+
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -417,6 +627,15 @@ const SUPABASE_URL =
 
 const SUPABASE_ANON_KEY =
 'sb_publishable_uuNwzGKCKd99_kM89BND1Q_SgWKjc2t';
+
+
+const STORAGE_BUCKET =
+'chat-files';
+
+
+const MAX_FILE_SIZE =
+6 * 1024 * 1024;
+
 
 const sb =
 supabase.createClient(
@@ -428,18 +647,30 @@ supabase.createClient(
 let me = null;
 let myId = '';
 let current = null;
+let currentId = null;
 let allUsers = [];
 let channel = null;
+
+let mediaRecorder = null;
+let audioChunks = [];
+let recordStarted = 0;
+let recordTimer = null;
 
 
 const $ = id =>
 document.getElementById(id);
 
 
+/* =========================
+   АВТОРИЗАЦИЯ
+========================= */
+
 function toggle(){
 
   $('login').classList.toggle('hide');
+
   $('reg').classList.toggle('hide');
+
   $('err').textContent = '';
 
 }
@@ -448,7 +679,8 @@ function toggle(){
 function msgError(e){
 
   $('err').textContent =
-    e?.message || 'Произошла ошибка';
+    e?.message ||
+    'Произошла ошибка';
 
 }
 
@@ -473,7 +705,8 @@ function emailFor(username){
       b => b.toString(16).padStart(2,'0')
     ).join('');
 
-  return 'u' + hex + '@private-messeng.local';
+  return 'u' + hex +
+    '@private-messeng.local';
 
 }
 
@@ -489,15 +722,19 @@ async function doReg(){
       $('rp').value;
 
     if(!validName(username)){
+
       throw Error(
         'Имя: 2–24 символа, без пробелов'
       );
+
     }
 
     if(password.length < 4){
+
       throw Error(
         'Пароль минимум 4 символа'
       );
+
     }
 
     const email =
@@ -505,18 +742,24 @@ async function doReg(){
 
     const {data,error} =
       await sb.auth.signUp({
+
         email,
+
         password,
+
         options:{
           data:{
             username
           }
         }
+
       });
+
 
     if(error){
       throw error;
     }
+
 
     if(!data.session){
 
@@ -525,6 +768,7 @@ async function doReg(){
       );
 
     }
+
 
     await start(data.session);
 
@@ -547,6 +791,7 @@ async function doLogin(){
     const password =
       $('lp').value;
 
+
     if(!validName(username)){
 
       throw Error(
@@ -555,14 +800,20 @@ async function doLogin(){
 
     }
 
+
     const email =
       emailFor(username);
 
+
     const {data,error} =
       await sb.auth.signInWithPassword({
+
         email,
+
         password
+
       });
+
 
     if(error){
 
@@ -571,6 +822,7 @@ async function doLogin(){
       );
 
     }
+
 
     await start(data.session);
 
@@ -583,11 +835,16 @@ async function doLogin(){
 }
 
 
+/* =========================
+   ЗАПУСК
+========================= */
+
 async function start(session){
 
   if(!session){
     return;
   }
+
 
   const {
     data:{
@@ -597,9 +854,11 @@ async function start(session){
   } =
   await sb.auth.getUser();
 
+
   if(error){
     throw error;
   }
+
 
   myId =
     user.id;
@@ -607,13 +866,16 @@ async function start(session){
   me =
     user.user_metadata.username || '';
 
+
   $('auth')
     .classList
     .add('hide');
 
+
   $('app')
     .classList
     .remove('hide');
+
 
   await loadUsers();
 
@@ -633,6 +895,7 @@ async function loadUsers(){
     .select('id,username')
     .order('username');
 
+
   if(error){
 
     msgError(error);
@@ -641,9 +904,11 @@ async function loadUsers(){
 
   }
 
+
   allUsers =
     (data || [])
       .filter(x => x.id !== myId);
+
 
   renderUsers();
 
@@ -658,12 +923,14 @@ function renderUsers(){
       .trim()
       .toLowerCase();
 
+
   const list =
     allUsers.filter(u =>
       u.username
         .toLowerCase()
         .includes(q)
     );
+
 
   $('list').innerHTML =
     list.length
@@ -673,7 +940,7 @@ function renderUsers(){
     list.map(u => `
 
       <div
-        class="user ${u.username === current ? 'active' : ''}"
+        class="user ${u.id === currentId ? 'active' : ''}"
         onclick="openChat('${u.id}')"
       >
 
@@ -694,6 +961,10 @@ function renderUsers(){
 }
 
 
+/* =========================
+   ЧАТ
+========================= */
+
 async function openChat(id){
 
   const u =
@@ -701,21 +972,35 @@ async function openChat(id){
       x => x.id === id
     );
 
+
   if(!u){
     return;
   }
 
+
   current =
     u.username;
 
+  currentId =
+    u.id;
+
+
   $('chathead').textContent =
     '💬 ' + current;
+
 
   $('text').disabled =
     false;
 
   $('send').disabled =
     false;
+
+  $('attachBtn').disabled =
+    false;
+
+  $('voiceBtn').disabled =
+    false;
+
 
   $('messages').innerHTML = '';
 
@@ -761,41 +1046,77 @@ function render(m){
   const d =
     document.createElement('div');
 
+
   d.className =
     'msg ' +
     (m.sender_id === myId
       ? 'mine'
       : '');
 
-  d.innerHTML = `
 
-    <div class="bubble">
+  const bubble =
+    document.createElement('div');
 
-      ${escapeHtml(m.body)}
+  bubble.className =
+    'bubble';
 
-      <div class="time">
 
-        ${new Date(
-          m.created_at
-        ).toLocaleTimeString(
-          [],
-          {
-            hour:'2-digit',
-            minute:'2-digit'
-          }
-        )}
+  const attachment =
+    parseAttachment(m.body);
 
-      </div>
 
-    </div>
+  if(attachment){
 
-  `;
+    renderAttachment(
+      bubble,
+      attachment
+    );
+
+  }else{
+
+    const text =
+      document.createElement('div');
+
+    text.textContent =
+      m.body || '';
+
+    bubble.appendChild(text);
+
+  }
+
+
+  const time =
+    document.createElement('div');
+
+  time.className =
+    'time';
+
+
+  time.textContent =
+    new Date(
+      m.created_at
+    ).toLocaleTimeString(
+      [],
+      {
+        hour:'2-digit',
+        minute:'2-digit'
+      }
+    );
+
+
+  bubble.appendChild(time);
+
+  d.appendChild(bubble);
 
   $('messages')
     .appendChild(d);
 
 }
 
+
+/* =========================
+   ОТПРАВКА ТЕКСТА
+========================= */
 
 async function send(){
 
@@ -807,8 +1128,10 @@ async function send(){
   const input =
     $('text');
 
+
   const body =
     input.value.trim();
+
 
   if(!body){
     return;
@@ -817,18 +1140,14 @@ async function send(){
 
   const u =
     allUsers.find(
-      x => x.username === current
+      x => x.id === currentId
     );
+
 
   if(!u){
     return;
   }
 
-
-  /*
-    Проверяем, что пользователь
-    действительно всё ещё авторизован.
-  */
 
   const {
     data:{
@@ -896,13 +1215,6 @@ async function send(){
 
     input.value = '';
 
-    /*
-      Сразу показываем сообщение,
-      даже если Realtime ещё не успел.
-    */
-
-    const now =
-      new Date().toISOString();
 
     render({
 
@@ -916,9 +1228,10 @@ async function send(){
         body,
 
       created_at:
-        now
+        new Date().toISOString()
 
     });
+
 
     scroll();
 
@@ -947,166 +1260,230 @@ async function send(){
 }
 
 
-function subscribe(){
+/* =========================
+   ФАЙЛЫ
+========================= */
 
-  if(channel){
+function chooseFile(){
 
-    sb.removeChannel(
-      channel
-    );
-
+  if(!currentId){
+    return;
   }
 
-
-  channel =
-    sb
-      .channel('private-messages')
-
-      .on(
-        'postgres_changes',
-
-        {
-          event:'INSERT',
-          schema:'public',
-          table:'messages'
-        },
-
-        payload => {
-
-          const m =
-            payload.new;
-
-          if(
-            m.sender_id === myId ||
-            m.receiver_id === myId
-          ){
-
-            const other =
-              m.sender_id === myId
-                ? m.receiver_id
-                : m.sender_id;
-
-
-            const u =
-              allUsers.find(
-                x => x.id === other
-              );
-
-
-            if(
-              u &&
-              u.username === current &&
-              m.sender_id !== myId
-            ){
-
-              render(m);
-
-              scroll();
-
-            }
-
-          }
-
-        }
-
-      )
-
-      .subscribe();
+  $('fileInput').click();
 
 }
 
 
-async function logout(){
+$('fileInput').addEventListener(
+  'change',
+  async function(){
 
-  await sb.auth.signOut();
+    const file =
+      this.files[0];
 
-  location.reload();
+    this.value = '';
 
-}
-
-
-function scroll(){
-
-  const box =
-    $('messages');
-
-  box.scrollTop =
-    box.scrollHeight;
-
-}
-
-
-function escapeHtml(s){
-
-  return String(s).replace(
-    /[&<>"']/g,
-
-    c => ({
-
-      '&':'&amp;',
-      '<':'&lt;',
-      '>':'&gt;',
-      '"':'&quot;',
-      "'":'&#39;'
-
-    }[c])
-
-  );
-
-}
-
-
-/*
-  Enter = отправить сообщение
-*/
-
-$('text').addEventListener(
-  'keydown',
-  e => {
-
-    if(
-      e.key === 'Enter' &&
-      !e.shiftKey
-    ){
-
-      e.preventDefault();
-
-      send();
-
+    if(!file){
+      return;
     }
+
+
+    await uploadFile(file);
 
   }
 );
 
 
-/*
-  Проверяем существующую
-  авторизацию при открытии сайта.
-*/
+async function uploadFile(file){
 
-async function boot(){
+  if(!currentId){
+    alert('Сначала выбери человека.');
+
+    return;
+  }
+
+
+  if(file.size > MAX_FILE_SIZE){
+
+    alert(
+      'Файл слишком большой.\n\n' +
+      'Сейчас максимальный размер — 6 МБ.'
+    );
+
+    return;
+
+  }
+
+
+  const target =
+    allUsers.find(
+      x => x.id === currentId
+    );
+
+
+  if(!target){
+    return;
+  }
+
+
+  showUpload(
+    'Загрузка файла...',
+    0
+  );
+
 
   try{
 
+    const extension =
+      getExtension(file.name);
+
+
+    const random =
+      crypto.randomUUID();
+
+
+    const path =
+      myId +
+      '/' +
+      random +
+      (extension
+        ? '.' + extension
+        : '');
+
+
     const {
-      data:{
-        session
-      }
+      error
     } =
-    await sb.auth.getSession();
+    await sb.storage
+      .from(STORAGE_BUCKET)
+      .upload(
+        path,
+        file,
+        {
+          cacheControl:'3600',
+          upsert:false,
+          contentType:
+            file.type ||
+            'application/octet-stream'
+        }
+      );
 
 
-    if(session){
-
-      await start(session);
-
+    if(error){
+      throw error;
     }
+
+
+    setUploadProgress(70);
+
+
+    const {
+      data
+    } =
+    sb.storage
+      .from(STORAGE_BUCKET)
+      .getPublicUrl(path);
+
+
+    const attachment = {
+
+      type:
+        file.type.startsWith('image/')
+          ? 'image'
+          : 'file',
+
+      name:
+        file.name,
+
+      size:
+        file.size,
+
+      mime:
+        file.type ||
+        'application/octet-stream',
+
+      path:
+        path,
+
+      url:
+        data.publicUrl
+
+    };
+
+
+    const body =
+      '[[ATTACHMENT]]' +
+      JSON.stringify(attachment);
+
+
+    const {
+      error:
+        messageError
+    } =
+    await sb
+      .from('messages')
+      .insert({
+
+        sender_id:
+          myId,
+
+        receiver_id:
+          target.id,
+
+        body:
+          body
+
+      });
+
+
+    if(messageError){
+      throw messageError;
+    }
+
+
+    setUploadProgress(100);
+
+
+    render({
+
+      sender_id:
+        myId,
+
+      receiver_id:
+        target.id,
+
+      body:
+        body,
+
+      created_at:
+        new Date().toISOString()
+
+    });
+
+
+    scroll();
+
 
   }catch(e){
 
     console.error(
-      'BOOT ERROR:',
+      'UPLOAD ERROR:',
       e
+    );
+
+
+    alert(
+      'Ошибка загрузки:\n' +
+      (e.message || e)
+    );
+
+
+  }finally{
+
+    setTimeout(
+      hideUpload,
+      500
     );
 
   }
@@ -1114,9 +1491,160 @@ async function boot(){
 }
 
 
-boot();
+function parseAttachment(body){
 
-</script>
+  if(
+    typeof body !== 'string' ||
+    !body.startsWith('[[ATTACHMENT]]')
+  ){
 
-</body>
-  </html>
+    return null;
+
+  }
+
+
+  try{
+
+    return JSON.parse(
+      body.substring(
+        '[[ATTACHMENT]]'.length
+      )
+    );
+
+  }catch(e){
+
+    return null;
+
+  }
+
+}
+
+
+function renderAttachment(
+  bubble,
+  a
+){
+
+  const box =
+    document.createElement('div');
+
+  box.className =
+    'file-card';
+
+
+  if(a.type === 'image'){
+
+    const img =
+      document.createElement('img');
+
+    img.className =
+      'file-image';
+
+    img.src =
+      a.url;
+
+    img.alt =
+      a.name || 'Фото';
+
+    img.loading =
+      'lazy';
+
+    box.appendChild(img);
+
+  }
+
+
+  if(a.type === 'audio'){
+
+    const audio =
+      document.createElement('audio');
+
+    audio.className =
+      'audio-player';
+
+    audio.controls =
+      true;
+
+    audio.src =
+      a.url;
+
+    box.appendChild(audio);
+
+  }
+
+
+  const name =
+    document.createElement('div');
+
+  name.className =
+    'file-name';
+
+  name.textContent =
+    a.name ||
+    'Файл';
+
+  box.appendChild(name);
+
+
+  if(a.size){
+
+    const size =
+      document.createElement('div');
+
+    size.className =
+      'file-size';
+
+    size.textContent =
+      formatSize(a.size);
+
+    box.appendChild(size);
+
+  }
+
+
+  const actions =
+    document.createElement('div');
+
+  actions.className =
+    'file-actions';
+
+
+  const open =
+    document.createElement('a');
+
+  open.href =
+    a.url;
+
+  open.target =
+    '_blank';
+
+  open.rel =
+    'noopener';
+
+  open.textContent =
+    'Открыть';
+
+
+  actions.appendChild(open);
+
+
+  const download =
+    document.createElement('a');
+
+  download.href =
+    a.url;
+
+  download.target =
+    '_blank';
+
+  download.rel =
+    'noopener';
+
+  download.textContent =
+    '📥 Скачать';
+
+
+  actions.appendChild(download);
+
+
+  box.a
