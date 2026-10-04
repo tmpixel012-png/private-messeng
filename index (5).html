@@ -1,0 +1,923 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0f14">
+  <title>Private Messeng</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: #0b0f14; color: #e8edf3; font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { min-height: 100vh; }
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .hidden { display: none !important; }
+    .screen { min-height: 100vh; }
+    .auth-screen { display: grid; place-items: center; padding: 20px; }
+    .auth-card { width: min(420px, 100%); background: #121820; border: 1px solid #26303c; border-radius: 20px; padding: 26px; box-shadow: 0 18px 60px rgba(0,0,0,.35); }
+    .brand { margin: 0 0 8px; font-size: 28px; }
+    .muted { color: #8995a3; }
+    .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 22px 0 18px; }
+    .tab, .secondary-btn { border: 1px solid #2b3745; background: #18212c; color: #dce5ee; border-radius: 10px; padding: 11px 14px; }
+    .tab.active { background: #2563eb; border-color: #2563eb; color: white; }
+    .field { margin-bottom: 13px; }
+    .field label { display: block; margin-bottom: 7px; color: #aeb9c6; font-size: 14px; }
+    .field input, .message-input { width: 100%; border: 1px solid #2b3745; background: #0e141b; color: #eef4fa; border-radius: 11px; outline: none; }
+    .field input { padding: 12px 13px; }
+    .field input:focus, .message-input:focus { border-color: #3b82f6; }
+    .primary-btn { width: 100%; border: 0; border-radius: 11px; padding: 12px 14px; background: #2563eb; color: white; font-weight: 700; }
+    .primary-btn:disabled { opacity: .55; cursor: not-allowed; }
+    .error { min-height: 20px; margin: 10px 0; color: #ff8f8f; font-size: 14px; }
+    .app { display: grid; grid-template-columns: 320px 1fr; height: 100vh; height: 100dvh; overflow: hidden; }
+    .sidebar { min-width: 0; border-right: 1px solid #222c37; background: #0f151c; display: flex; flex-direction: column; }
+    .sidebar-head { padding: 16px; border-bottom: 1px solid #222c37; }
+    .sidebar-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+    .sidebar-title h1 { margin: 0; font-size: 20px; }
+    .icon-btn { width: 38px; height: 38px; border: 1px solid #2b3745; background: #18212c; color: #e8edf3; border-radius: 10px; }
+    .search { width: 100%; padding: 10px 12px; border: 1px solid #2b3745; background: #0b1016; color: #eef4fa; border-radius: 10px; outline: none; }
+    .user-list { overflow: auto; padding: 8px; }
+    .user-item { width: 100%; display: flex; align-items: center; gap: 11px; border: 0; background: transparent; color: #e8edf3; padding: 11px 10px; border-radius: 11px; text-align: left; }
+    .user-item:hover, .user-item.active { background: #1a2531; }
+    .avatar { flex: 0 0 38px; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: #26384f; color: #dbeafe; font-weight: 700; }
+    .user-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sidebar-foot { margin-top: auto; padding: 12px 14px; border-top: 1px solid #222c37; }
+    .foot-row { display: flex; gap: 8px; }
+    .foot-row button { flex: 1; }
+    .chat { min-width: 0; display: flex; flex-direction: column; background: #0b1016; }
+    .chat-head { min-height: 64px; display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid #222c37; background: #0f151c; }
+    .chat-head .back { display: none; }
+    .chat-user { font-weight: 700; }
+    .messages { flex: 1; overflow-y: auto; padding: 18px max(16px, calc((100% - 900px) / 2)); display: flex; flex-direction: column; gap: 8px; }
+    .empty-chat { margin: auto; text-align: center; color: #738091; }
+    .message { max-width: min(72%, 620px); padding: 9px 11px; border-radius: 14px; background: #18212c; align-self: flex-start; overflow-wrap: anywhere; }
+    .message.mine { background: #17417e; align-self: flex-end; }
+    .message-time { display: block; margin-top: 5px; color: #91a0b0; font-size: 11px; text-align: right; }
+    .message.mine .message-time { color: #b7cceb; }
+    .message-text { white-space: pre-wrap; line-height: 1.4; }
+    .attachment { display: flex; flex-direction: column; gap: 7px; }
+    .attachment img { display: block; max-width: min(100%, 420px); max-height: 420px; border-radius: 10px; object-fit: contain; background: #0b1016; }
+    .attachment audio { width: min(100%, 420px); }
+    .file-link { color: #dbeafe; text-decoration: none; padding: 10px; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; display: inline-block; }
+    .composer-wrap { padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid #222c37; background: #0f151c; }
+    .composer { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: auto auto 1fr auto; gap: 8px; align-items: end; }
+    .composer .icon-btn { flex: 0 0 auto; }
+    .message-input { min-height: 42px; max-height: 130px; resize: vertical; padding: 10px 12px; }
+    .send-btn { border: 0; background: #2563eb; color: white; border-radius: 10px; padding: 11px 17px; min-height: 42px; font-weight: 700; }
+    .status { min-height: 18px; margin: 4px auto 0; max-width: 900px; color: #8e9aaa; font-size: 12px; }
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,.65); display: grid; place-items: center; padding: 18px; z-index: 20; }
+    .modal-card { width: min(430px, 100%); background: #121820; border: 1px solid #2b3745; border-radius: 16px; padding: 20px; }
+    .modal-card h2 { margin-top: 0; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+    .recording { border-color: #ef4444 !important; color: #fecaca !important; }
+    .loading { opacity: .65; pointer-events: none; }
+    @media (max-width: 720px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display: flex; }
+      .chat { display: none; }
+      .app.chat-open .sidebar { display: none; }
+      .app.chat-open .chat { display: flex; }
+      .chat-head .back { display: block; }
+      .messages { padding: 14px 10px; }
+      .message { max-width: 86%; }
+      .composer-wrap { padding-left: 8px; padding-right: 8px; }
+      .composer { grid-template-columns: auto auto 1fr auto; gap: 5px; }
+      .icon-btn { width: 40px; }
+      .send-btn { padding-left: 12px; padding-right: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <section id="authScreen" class="screen auth-screen">
+    <div class="auth-card">
+      <h1 class="brand">Private Messeng</h1>
+      <div class="muted">Приватный мессенджер для своих</div>
+      <div class="auth-tabs">
+        <button id="loginTab" class="tab active" type="button">Вход</button>
+        <button id="registerTab" class="tab" type="button">Регистрация</button>
+      </div>
+      <form id="authForm">
+        <div class="field">
+          <label for="username">Имя пользователя</label>
+          <input id="username" name="username" autocomplete="username" maxlength="32" required>
+        </div>
+        <div class="field">
+          <label for="password">Пароль</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" minlength="6" required>
+        </div>
+        <div id="authError" class="error"></div>
+        <button id="authSubmit" class="primary-btn" type="submit">Войти</button>
+      </form>
+    </div>
+  </section>
+
+  <main id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <div class="sidebar-title">
+          <h1>Сообщения</h1>
+          <button id="notificationBtn" class="icon-btn" type="button" title="Разрешить уведомления">🔔</button>
+        </div>
+        <input id="userSearch" class="search" type="search" placeholder="Поиск по username" autocomplete="off">
+      </div>
+      <div id="userList" class="user-list"></div>
+      <div class="sidebar-foot">
+        <div id="currentUser" class="muted" style="margin-bottom:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></div>
+        <div class="foot-row">
+          <button id="logoutBtn" class="secondary-btn" type="button">Выйти</button>
+        </div>
+      </div>
+    </aside>
+
+    <section class="chat">
+      <header class="chat-head">
+        <button id="backBtn" class="icon-btn back" type="button" aria-label="Назад">←</button>
+        <div id="chatAvatar" class="avatar">?</div>
+        <div id="chatUser" class="chat-user">Выберите пользователя</div>
+      </header>
+      <div id="messages" class="messages">
+        <div class="empty-chat">Выберите пользователя слева, чтобы начать чат.</div>
+      </div>
+      <div class="composer-wrap">
+        <div class="composer">
+          <button id="attachBtn" class="icon-btn" type="button" title="Прикрепить файл">📎</button>
+          <button id="voiceBtn" class="icon-btn" type="button" title="Записать голосовое">🎙️</button>
+          <textarea id="messageInput" class="message-input" rows="1" placeholder="Сообщение" disabled></textarea>
+          <button id="sendBtn" class="send-btn" type="button" disabled>Отправить</button>
+        </div>
+        <div id="composerStatus" class="status"></div>
+        <input id="fileInput" type="file" class="hidden" accept="image/*,audio/*,.pdf,.zip,.rar,.txt,.doc,.docx,.xls,.xlsx,.7z">
+      </div>
+    </section>
+  </main>
+
+  <div id="notificationModal" class="modal hidden">
+    <div class="modal-card">
+      <h2>Уведомления</h2>
+      <div id="notificationText" class="muted">Разрешите уведомления браузера, чтобы видеть новые сообщения, когда вкладка скрыта.</div>
+      <div class="modal-actions">
+        <button id="notificationClose" class="secondary-btn" type="button">Закрыть</button>
+        <button id="notificationAllow" class="primary-btn" style="width:auto" type="button">Разрешить</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    "use strict";
+
+    const SUPABASE_URL = "https://ukutofgxcdsnpjftloxb.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_uuNwzGKCKd99_kM89BND1Q_SgWKjc2t";
+    const BUCKET = "attachments";
+    const MAX_FILE_SIZE = 50 * 1024 * 1024;
+    const ATTACHMENT_PREFIX = "[[ATTACHMENT]]";
+
+    const { createClient } = supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false
+      }
+    });
+
+    const $ = (id) => document.getElementById(id);
+
+    const state = {
+      mode: "login",
+      session: null,
+      user: null,
+      profile: null,
+      profiles: [],
+      selectedUser: null,
+      messages: [],
+      realtime: null,
+      recording: false,
+      mediaRecorder: null,
+      audioChunks: [],
+      loadingMessages: false,
+      messageRequest: 0
+    };
+
+    function normalizeUsername(value) {
+      return String(value || "").trim().toLowerCase();
+    }
+
+    function validUsername(value) {
+      return /^[a-zA-Z0-9_.-]{3,32}$/.test(value);
+    }
+
+    function usernameEmail(username) {
+      const normalized = normalizeUsername(username);
+      let hash = 2166136261;
+      for (let i = 0; i < normalized.length; i += 1) {
+        hash ^= normalized.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+      }
+      const hex = (hash >>> 0).toString(16).padStart(8, "0");
+      return "u" + hex + "@" + "private-messeng.local";
+    }
+
+    function showAuthError(message) {
+      $("authError").textContent = message || "";
+    }
+
+    function setBusy(button, busy, busyText) {
+      button.disabled = busy;
+      if (busy) {
+        button.dataset.oldText = button.textContent;
+        button.textContent = busyText || "Подождите...";
+      } else if (button.dataset.oldText) {
+        button.textContent = button.dataset.oldText;
+        delete button.dataset.oldText;
+      }
+    }
+
+    function initials(username) {
+      return String(username || "?").slice(0, 1).toUpperCase();
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatTime(value) {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? "" : date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function isAttachment(body) {
+      return typeof body === "string" && body.startsWith(ATTACHMENT_PREFIX);
+    }
+
+    function parseAttachment(body) {
+      if (!isAttachment(body)) return null;
+      try {
+        const data = JSON.parse(body.slice(ATTACHMENT_PREFIX.length));
+        if (!data || typeof data.path !== "string" || typeof data.name !== "string") return null;
+        return data;
+      } catch {
+        return null;
+      }
+    }
+
+    function attachmentType(file) {
+      const mime = String(file.type || "").toLowerCase();
+      const name = String(file.name || "").toLowerCase();
+      if (mime.startsWith("image/")) return "image";
+      if (mime.startsWith("audio/")) return "audio";
+      if ([".pdf"].some(ext => name.endsWith(ext))) return "file";
+      if ([".zip", ".rar", ".txt", ".doc", ".docx", ".xls", ".xlsx", ".7z"].some(ext => name.endsWith(ext))) return "file";
+      return null;
+    }
+
+    function setScreen(authenticated) {
+      $("authScreen").classList.toggle("hidden", authenticated);
+      $("app").classList.toggle("hidden", !authenticated);
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      $("loginTab").classList.toggle("active", mode === "login");
+      $("registerTab").classList.toggle("active", mode === "register");
+      $("authSubmit").textContent = mode === "login" ? "Войти" : "Зарегистрироваться";
+      $("password").autocomplete = mode === "login" ? "current-password" : "new-password";
+      showAuthError("");
+    }
+
+    async function findProfileByUsername(username) {
+      const { data, error } = await db
+        .from("profiles")
+        .select("id, username")
+        .eq("username", username)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    }
+
+    async function ensureProfile() {
+      if (!state.user) return null;
+      const { data, error } = await db
+        .from("profiles")
+        .select("id, username")
+        .eq("id", state.user.id)
+        .maybeSingle();
+      if (error) throw error;
+      if (data) return data;
+
+      const metadataUsername = normalizeUsername(state.user.user_metadata && state.user.user_metadata.username);
+      if (!metadataUsername) throw new Error("Профиль пользователя не найден.");
+
+      const result = await db
+        .from("profiles")
+        .insert({ id: state.user.id, username: metadataUsername })
+        .select("id, username")
+        .single();
+      if (result.error) throw result.error;
+      return result.data;
+    }
+
+    async function register(username, password) {
+      const normalized = normalizeUsername(username);
+      if (!validUsername(normalized)) {
+        throw new Error("Username: 3–32 символа, только латинские буквы, цифры, _, -, .");
+      }
+      if (password.length < 6) throw new Error("Пароль должен содержать минимум 6 символов.");
+
+      const existing = await findProfileByUsername(normalized);
+      if (existing) throw new Error("Этот username уже занят.");
+
+      const email = usernameEmail(normalized);
+      const { data, error } = await db.auth.signUp({
+        email,
+        password,
+        options: { data: { username: normalized } }
+      });
+      if (error) throw error;
+
+      if (!data.session) {
+        throw new Error("Регистрация создана, но Supabase запросил подтверждение email. Отключи Email Confirmation в настройках Supabase Auth.");
+      }
+
+      state.session = data.session;
+      state.user = data.user;
+      state.profile = await ensureProfile();
+    }
+
+    async function login(username, password) {
+      const normalized = normalizeUsername(username);
+      if (!normalized || !password) throw new Error("Введите username и пароль.");
+
+      const profile = await findProfileByUsername(normalized);
+      if (!profile) throw new Error("Пользователь не найден.");
+
+      const { data, error } = await db.auth.signInWithPassword({
+        email: usernameEmail(normalized),
+        password
+      });
+      if (error) throw error;
+
+      state.session = data.session;
+      state.user = data.user;
+      state.profile = profile;
+    }
+
+    async function loadProfiles() {
+      const { data, error } = await db
+        .from("profiles")
+        .select("id, username")
+        .neq("id", state.user.id)
+        .order("username", { ascending: true });
+      if (error) throw error;
+      state.profiles = data || [];
+      renderProfiles();
+    }
+
+    function renderProfiles() {
+      const query = normalizeUsername($("userSearch").value);
+      const list = state.profiles.filter(p => !query || p.username.toLowerCase().includes(query));
+      const container = $("userList");
+      container.innerHTML = "";
+
+      if (!list.length) {
+        const empty = document.createElement("div");
+        empty.className = "muted";
+        empty.style.padding = "16px 10px";
+        empty.textContent = query ? "Ничего не найдено." : "Пока нет других пользователей.";
+        container.appendChild(empty);
+        return;
+      }
+
+      for (const profile of list) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "user-item" + (state.selectedUser && state.selectedUser.id === profile.id ? " active" : "");
+        button.innerHTML = '<span class="avatar">' + escapeHtml(initials(profile.username)) + '</span><span class="user-name">' + escapeHtml(profile.username) + "</span>";
+        button.addEventListener("click", () => openChat(profile));
+        container.appendChild(button);
+      }
+    }
+
+    async function openChat(profile) {
+      state.selectedUser = profile;
+      $("chatAvatar").textContent = initials(profile.username);
+      $("chatUser").textContent = profile.username;
+      $("messageInput").disabled = false;
+      $("sendBtn").disabled = false;
+      renderProfiles();
+      $("app").classList.add("chat-open");
+      await loadMessages();
+      subscribeRealtime();
+      scrollMessages();
+    }
+
+    function backToUsers() {
+      $("app").classList.remove("chat-open");
+      state.selectedUser = null;
+      $("messageInput").disabled = true;
+      $("sendBtn").disabled = true;
+      $("chatUser").textContent = "Выберите пользователя";
+      $("chatAvatar").textContent = "?";
+      unsubscribeRealtime();
+    }
+
+    function renderMessages() {
+      const container = $("messages");
+      container.innerHTML = "";
+
+      if (!state.selectedUser) {
+        container.innerHTML = '<div class="empty-chat">Выберите пользователя слева, чтобы начать чат.</div>';
+        return;
+      }
+
+      if (!state.messages.length) {
+        container.innerHTML = '<div class="empty-chat">Сообщений пока нет. Напишите первым.</div>';
+        return;
+      }
+
+      for (const message of state.messages) {
+        const mine = message.sender_id === state.user.id;
+        const wrapper = document.createElement("div");
+        wrapper.className = "message" + (mine ? " mine" : "");
+
+        const attachment = parseAttachment(message.body);
+        if (attachment) {
+          const content = document.createElement("div");
+          content.className = "attachment";
+          const label = document.createElement("div");
+          label.className = "muted";
+          label.textContent = attachment.name;
+          content.appendChild(label);
+
+          const loading = document.createElement("div");
+          loading.className = "muted";
+          loading.textContent = "Загрузка вложения...";
+          content.appendChild(loading);
+          wrapper.appendChild(content);
+          wrapper.dataset.path = attachment.path;
+          wrapper.dataset.type = attachment.type || "file";
+          createAttachmentElement(wrapper, content, attachment);
+        } else {
+          const text = document.createElement("div");
+          text.className = "message-text";
+          text.textContent = message.body || "";
+          wrapper.appendChild(text);
+        }
+
+        const time = document.createElement("span");
+        time.className = "message-time";
+        time.textContent = formatTime(message.created_at);
+        wrapper.appendChild(time);
+        container.appendChild(wrapper);
+      }
+
+      scrollMessages();
+    }
+
+    async function createAttachmentElement(wrapper, container, attachment) {
+      try {
+        const { data, error } = await db.storage.from(BUCKET).createSignedUrl(attachment.path, 3600);
+        if (error) throw error;
+
+        const loading = container.querySelector(".muted");
+        if (loading) loading.remove();
+
+        if (attachment.type === "image") {
+          const image = document.createElement("img");
+          image.src = data.signedUrl;
+          image.alt = attachment.name;
+          image.loading = "lazy";
+          container.appendChild(image);
+        } else if (attachment.type === "audio") {
+          const audio = document.createElement("audio");
+          audio.controls = true;
+          audio.preload = "metadata";
+          audio.src = data.signedUrl;
+          container.appendChild(audio);
+        } else {
+          const link = document.createElement("a");
+          link.className = "file-link";
+          link.href = data.signedUrl;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = "📄 " + attachment.name + " · " + formatBytes(attachment.size);
+          container.appendChild(link);
+        }
+      } catch (error) {
+        const loading = container.querySelector(".muted");
+        if (loading) loading.textContent = "Не удалось открыть вложение.";
+        console.error(error);
+      }
+    }
+
+    async function loadMessages() {
+      if (!state.selectedUser) return;
+      const request = ++state.messageRequest;
+      state.loadingMessages = true;
+      $("composerStatus").textContent = "Загрузка сообщений...";
+
+      const otherId = state.selectedUser.id;
+      const { data, error } = await db
+        .from("messages")
+        .select("id, sender_id, receiver_id, body, created_at")
+        .or(
+          "and(sender_id.eq." + state.user.id + ",receiver_id.eq." + otherId + "),and(sender_id.eq." + otherId + ",receiver_id.eq." + state.user.id + ")"
+        )
+        .order("created_at", { ascending: true });
+
+      if (request !== state.messageRequest) return;
+      state.loadingMessages = false;
+      $("composerStatus").textContent = "";
+      if (error) {
+        console.error(error);
+        $("composerStatus").textContent = "Не удалось загрузить сообщения.";
+        return;
+      }
+      state.messages = data || [];
+      renderMessages();
+    }
+
+    function subscribeRealtime() {
+      unsubscribeRealtime();
+      if (!state.selectedUser || !state.user) return;
+
+      const otherId = state.selectedUser.id;
+      state.realtime = db
+        .channel("messages-" + state.user.id + "-" + otherId)
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "messages" },
+          payload => handleRealtimeMessage(payload.new)
+        )
+        .subscribe(status => {
+          if (status === "CHANNEL_ERROR") console.error("Realtime channel error");
+        });
+    }
+
+    function handleRealtimeMessage(message) {
+      if (!state.user || !message) return;
+      const relevant = (
+        (message.sender_id === state.user.id && state.selectedUser && message.receiver_id === state.selectedUser.id) ||
+        (message.receiver_id === state.user.id && state.selectedUser && message.sender_id === state.selectedUser.id)
+      );
+      if (!relevant) {
+        if (message.receiver_id === state.user.id) notifyIncomingMessage(message);
+        return;
+      }
+
+      if (!state.messages.some(item => item.id === message.id)) {
+        state.messages.push(message);
+        state.messages.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        renderMessages();
+      }
+
+      if (message.receiver_id === state.user.id) notifyIncomingMessage(message);
+    }
+
+    function unsubscribeRealtime() {
+      if (state.realtime) {
+        db.removeChannel(state.realtime);
+        state.realtime = null;
+      }
+    }
+
+    async function sendText() {
+      if (!state.selectedUser || !state.user) return;
+      const body = $("messageInput").value.trim();
+      if (!body) return;
+
+      $("sendBtn").disabled = true;
+      const { data, error } = await db
+        .from("messages")
+        .insert({
+          sender_id: state.user.id,
+          receiver_id: state.selectedUser.id,
+          body
+        })
+        .select("id, sender_id, receiver_id, body, created_at")
+        .single();
+      $("sendBtn").disabled = false;
+
+      if (error) {
+        $("composerStatus").textContent = "Ошибка отправки: " + error.message;
+        return;
+      }
+
+      $("messageInput").value = "";
+      autoResizeTextarea();
+      if (data && !state.messages.some(item => item.id === data.id)) {
+        state.messages.push(data);
+        renderMessages();
+      }
+    }
+
+    async function sendAttachment(file) {
+      if (!state.selectedUser || !state.user || !file) return;
+      if (file.size > MAX_FILE_SIZE) {
+        $("composerStatus").textContent = "Файл слишком большой. Максимум 50 МБ.";
+        return;
+      }
+
+      const type = attachmentType(file);
+      if (!type) {
+        $("composerStatus").textContent = "Этот тип файла не поддерживается.";
+        return;
+      }
+
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-120) || "file";
+      const randomPart = crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2);
+      const path = state.user.id + "/" + randomPart + "_" + safeName;
+
+      $("composerStatus").textContent = "Загрузка файла...";
+      $("attachBtn").disabled = true;
+
+      try {
+        const { error: uploadError } = await db.storage.from(BUCKET).upload(path, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type || "application/octet-stream"
+        });
+        if (uploadError) throw uploadError;
+
+        const body = ATTACHMENT_PREFIX + JSON.stringify({
+          type,
+          name: file.name,
+          size: file.size,
+          mime: file.type || "application/octet-stream",
+          path
+        });
+
+        const { data, error } = await db
+          .from("messages")
+          .insert({
+            sender_id: state.user.id,
+            receiver_id: state.selectedUser.id,
+            body
+          })
+          .select("id, sender_id, receiver_id, body, created_at")
+          .single();
+        if (error) throw error;
+
+        if (data && !state.messages.some(item => item.id === data.id)) {
+          state.messages.push(data);
+          renderMessages();
+        }
+        $("fileInput").value = "";
+        $("composerStatus").textContent = "";
+      } catch (error) {
+        console.error(error);
+        $("composerStatus").textContent = "Ошибка вложения: " + error.message;
+      } finally {
+        $("attachBtn").disabled = false;
+      }
+    }
+
+    async function toggleVoiceRecording() {
+      if (state.recording) {
+        state.mediaRecorder.stop();
+        return;
+      }
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+        $("composerStatus").textContent = "Этот браузер не поддерживает запись голоса.";
+        return;
+      }
+      if (!state.selectedUser) return;
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        state.audioChunks = [];
+        const preferred = MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus" : "";
+        state.mediaRecorder = preferred ? new MediaRecorder(stream, { mimeType: preferred }) : new MediaRecorder(stream);
+
+        state.mediaRecorder.ondataavailable = event => {
+          if (event.data && event.data.size) state.audioChunks.push(event.data);
+        };
+
+        state.mediaRecorder.onstop = async () => {
+          state.recording = false;
+          $("voiceBtn").classList.remove("recording");
+          $("voiceBtn").textContent = "🎙️";
+          stream.getTracks().forEach(track => track.stop());
+
+          const mime = state.mediaRecorder.mimeType || "audio/webm";
+          const blob = new Blob(state.audioChunks, { type: mime });
+          state.mediaRecorder = null;
+          if (blob.size) {
+            const extension = mime.includes("ogg") ? "ogg" : "webm";
+            const file = new File([blob], "voice_" + Date.now() + "." + extension, { type: mime });
+            await sendAttachment(file);
+          }
+        };
+
+        state.mediaRecorder.start();
+        state.recording = true;
+        $("voiceBtn").classList.add("recording");
+        $("voiceBtn").textContent = "⏹️";
+        $("composerStatus").textContent = "Идёт запись... Нажмите 🎙️ ещё раз для остановки.";
+      } catch (error) {
+        console.error(error);
+        $("composerStatus").textContent = "Нет доступа к микрофону.";
+      }
+    }
+
+    function formatBytes(bytes) {
+      if (!Number.isFinite(bytes) || bytes < 0) return "";
+      if (bytes < 1024) return bytes + " Б";
+      const units = ["КБ", "МБ", "ГБ"];
+      let value = bytes / 1024;
+      let index = 0;
+      while (value >= 1024 && index < units.length - 1) {
+        value /= 1024;
+        index += 1;
+      }
+      return value.toFixed(value >= 10 ? 0 : 1) + " " + units[index];
+    }
+
+    function scrollMessages() {
+      const container = $("messages");
+      requestAnimationFrame(() => {
+        container.scrollTop = container.scrollHeight;
+      });
+    }
+
+    function autoResizeTextarea() {
+      const input = $("messageInput");
+      input.style.height = "auto";
+      input.style.height = Math.min(input.scrollHeight, 130) + "px";
+    }
+
+    async function requestNotifications() {
+      if (!("Notification" in window)) {
+        $("notificationText").textContent = "Этот браузер не поддерживает Notification API.";
+        $("notificationModal").classList.remove("hidden");
+        return;
+      }
+
+      if (Notification.permission === "granted") {
+        $("notificationText").textContent = "Уведомления уже разрешены.";
+        $("notificationAllow").classList.add("hidden");
+        $("notificationModal").classList.remove("hidden");
+        return;
+      }
+
+      $("notificationAllow").classList.remove("hidden");
+      $("notificationText").textContent = "Разрешите уведомления браузера. Они будут показываться при новых сообщениях, когда вкладка скрыта.";
+      $("notificationModal").classList.remove("hidden");
+    }
+
+    async function allowNotifications() {
+      if (!("Notification" in window)) return;
+      const permission = await Notification.requestPermission();
+      $("notificationText").textContent = permission === "granted"
+        ? "Уведомления разрешены."
+        : "Разрешение не предоставлено.";
+      if (permission === "granted") $("notificationAllow").classList.add("hidden");
+    }
+
+    async function notifyIncomingMessage(message) {
+      if (document.visibilityState === "visible" || !("Notification" in window) || Notification.permission !== "granted") return;
+
+      let senderName = "Новое сообщение";
+      const sender = state.profiles.find(p => p.id === message.sender_id);
+      if (sender) senderName = sender.username;
+
+      let body = "Новое сообщение";
+      const attachment = parseAttachment(message.body);
+      if (attachment) body = "📎 " + attachment.name;
+      else if (message.body) body = message.body.slice(0, 120);
+
+      try {
+        const notification = new Notification(senderName, { body, tag: "message-" + message.id });
+        notification.onclick = () => {
+          window.focus();
+          if (sender) openChat(sender);
+          notification.close();
+        };
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    async function logout() {
+      unsubscribeRealtime();
+      if (state.recording && state.mediaRecorder) state.mediaRecorder.stop();
+      await db.auth.signOut();
+      state.session = null;
+      state.user = null;
+      state.profile = null;
+      state.profiles = [];
+      state.selectedUser = null;
+      state.messages = [];
+      $("app").classList.remove("chat-open");
+      setScreen(false);
+    }
+
+    async function enterApp(session) {
+      state.session = session;
+      state.user = session.user;
+      try {
+        state.profile = await ensureProfile();
+        $("currentUser").textContent = "Вы вошли как @" + state.profile.username;
+        setScreen(true);
+        await loadProfiles();
+        if ("Notification" in window && Notification.permission === "default") {
+          $("notificationBtn").title = "Разрешить уведомления";
+        }
+      } catch (error) {
+        console.error(error);
+        showAuthError("Не удалось загрузить профиль: " + error.message);
+        await db.auth.signOut();
+        setScreen(false);
+      }
+    }
+
+    $("loginTab").addEventListener("click", () => setMode("login"));
+    $("registerTab").addEventListener("click", () => setMode("register"));
+
+    $("authForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const username = normalizeUsername($("username").value);
+      const password = $("password").value;
+      const button = $("authSubmit");
+      showAuthError("");
+      setBusy(button, true, state.mode === "login" ? "Вход..." : "Регистрация...");
+
+      try {
+        if (state.mode === "login") await login(username, password);
+        else await register(username, password);
+
+        $("password").value = "";
+        $("username").value = "";
+        await enterApp(state.session);
+      } catch (error) {
+        console.error(error);
+        showAuthError(error.message || "Произошла ошибка.");
+      } finally {
+        setBusy(button, false);
+      }
+    });
+
+    $("userSearch").addEventListener("input", renderProfiles);
+    $("backBtn").addEventListener("click", backToUsers);
+    $("logoutBtn").addEventListener("click", logout);
+    $("sendBtn").addEventListener("click", sendText);
+
+    $("messageInput").addEventListener("input", autoResizeTextarea);
+    $("messageInput").addEventListener("keydown", event => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendText();
+      }
+    });
+
+    $("attachBtn").addEventListener("click", () => {
+      if (!state.selectedUser) return;
+      $("fileInput").click();
+    });
+
+    $("fileInput").addEventListener("change", event => {
+      const file = event.target.files && event.target.files[0];
+      if (file) sendAttachment(file);
+    });
+
+    $("voiceBtn").addEventListener("click", toggleVoiceRecording);
+    $("notificationBtn").addEventListener("click", requestNotifications);
+    $("notificationClose").addEventListener("click", () => $("notificationModal").classList.add("hidden"));
+    $("notificationAllow").addEventListener("click", allowNotifications);
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && state.selectedUser) {
+        loadMessages();
+      }
+    });
+
+    db.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_OUT") {
+        setScreen(false);
+        return;
+      }
+      if (session && !state.user) {
+        await enterApp(session);
+      }
+    });
+
+    (async function init() {
+      try {
+        const { data } = await db.auth.getSession();
+        if (data.session) {
+          await enterApp(data.session);
+        } else {
+          setScreen(false);
+        }
+      } catch (error) {
+        console.error(error);
+        setScreen(false);
+      }
+    })();
+  </script>
+</body>
+</html>
