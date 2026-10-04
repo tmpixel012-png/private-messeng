@@ -4,12 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111827">
-<title>Private Messenger</title>
+<title>Private Messeng</title>
 
 <style>
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
@@ -18,8 +16,7 @@ body{
   font-family:Arial,sans-serif;
 }
 
-button,
-input{
+button,input{
   font:inherit;
 }
 
@@ -132,6 +129,7 @@ h1{
 
 .list{
   overflow:auto;
+  flex:1;
 }
 
 .user{
@@ -230,35 +228,98 @@ h1{
   cursor:not-allowed;
 }
 
-.attach,
-.voice{
+.attach{
   width:44px;
   height:44px;
-  flex:none;
   border:0;
   border-radius:12px;
   background:#202a3e;
   color:#fff;
   font-size:20px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  flex-shrink:0;
 }
 
-.attach:hover,
-.voice:hover{
-  background:#2a3853;
+.record{
+  width:44px;
+  height:44px;
+  border:0;
+  border-radius:12px;
+  background:#202a3e;
+  color:#fff;
+  font-size:20px;
+  flex-shrink:0;
 }
 
-.voice.recording{
-  background:#dc3545;
+.record.recording{
+  background:#dc2626;
   animation:pulse 1s infinite;
 }
 
 @keyframes pulse{
-  0%{opacity:1}
-  50%{opacity:.55}
-  100%{opacity:1}
+  50%{
+    opacity:.55;
+  }
+}
+
+.file-card{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+
+.file-name{
+  font-weight:bold;
+  word-break:break-word;
+}
+
+.file-size{
+  color:#b8c2d3;
+  font-size:12px;
+}
+
+.file-link{
+  display:inline-block;
+  color:#fff;
+  background:#ffffff22;
+  padding:7px 10px;
+  border-radius:8px;
+  text-decoration:none;
+  width:max-content;
+}
+
+.chat-image{
+  display:block;
+  max-width:100%;
+  max-height:320px;
+  border-radius:10px;
+  object-fit:contain;
+  background:#0003;
+}
+
+.audio-player{
+  width:100%;
+  min-width:220px;
+}
+
+.upload-status{
+  position:fixed;
+  left:50%;
+  bottom:80px;
+  transform:translateX(-50%);
+  background:#111827;
+  border:1px solid #34405b;
+  color:#fff;
+  padding:10px 15px;
+  border-radius:12px;
+  z-index:100;
+  box-shadow:0 10px 30px #0007;
+  display:none;
+  max-width:90%;
+  text-align:center;
+}
+
+.upload-status.show{
+  display:block;
 }
 
 .empty{
@@ -268,7 +329,7 @@ h1{
 }
 
 .logout{
-  margin:0 12px 12px;
+  margin:12px;
   padding:10px;
   background:#202a3e;
   color:#fff;
@@ -278,94 +339,6 @@ h1{
 
 .hide{
   display:none!important;
-}
-
-.file-card{
-  display:flex;
-  flex-direction:column;
-  gap:7px;
-  min-width:180px;
-}
-
-.file-image{
-  display:block;
-  max-width:100%;
-  max-height:300px;
-  border-radius:10px;
-  object-fit:contain;
-  background:#101827;
-}
-
-.file-name{
-  font-weight:bold;
-  word-break:break-word;
-}
-
-.file-size{
-  color:#aab5c8;
-  font-size:11px;
-}
-
-.file-actions{
-  display:flex;
-  gap:7px;
-}
-
-.file-actions a{
-  display:inline-block;
-  background:#ffffff22;
-  color:#fff;
-  text-decoration:none;
-  padding:7px 10px;
-  border-radius:8px;
-  font-size:12px;
-}
-
-.audio-player{
-  width:260px;
-  max-width:100%;
-}
-
-.upload-status{
-  position:fixed;
-  left:50%;
-  bottom:85px;
-  transform:translateX(-50%);
-  background:#151c2e;
-  border:1px solid #303b55;
-  padding:10px 15px;
-  border-radius:12px;
-  box-shadow:0 10px 30px #0008;
-  z-index:100;
-  font-size:13px;
-}
-
-.progress{
-  width:180px;
-  height:5px;
-  background:#303b55;
-  border-radius:5px;
-  overflow:hidden;
-  margin-top:7px;
-}
-
-.progress-bar{
-  width:0%;
-  height:100%;
-  background:#3b82f6;
-  transition:width .2s;
-}
-
-.record-info{
-  position:fixed;
-  left:50%;
-  bottom:85px;
-  transform:translateX(-50%);
-  background:#151c2e;
-  border:1px solid #303b55;
-  padding:12px 16px;
-  border-radius:12px;
-  z-index:100;
 }
 
 @media(max-width:650px){
@@ -398,14 +371,13 @@ h1{
 
   .composer{
     gap:5px;
-    padding-left:6px;
-    padding-right:6px;
   }
 
   .attach,
-  .voice{
+  .record{
     width:40px;
     height:40px;
+    font-size:18px;
   }
 
   .send{
@@ -421,7 +393,7 @@ h1{
 
   <div class="card">
 
-    <h1>🔒 Private Messenger</h1>
+    <h1>🔒 Private Messeng</h1>
 
     <div class="muted">
       Простой мессенджер для своих
@@ -495,13 +467,11 @@ h1{
     </div>
 
     <div class="search">
-
       <input
         id="search"
         placeholder="Поиск"
         oninput="renderUsers()"
       >
-
     </div>
 
     <div id="list" class="list"></div>
@@ -524,52 +494,13 @@ h1{
     </div>
 
     <div id="messages" class="messages">
-
       <div class="empty">
         Выберите человека слева
       </div>
-
     </div>
 
 
     <div class="composer">
-
-      <!-- Выбор файла -->
-
-      <button
-        type="button"
-        class="attach"
-        id="attachBtn"
-        onclick="chooseFile()"
-        disabled
-        title="Фото или файл"
-      >
-        📎
-      </button>
-
-      <input
-        type="file"
-        id="fileInput"
-        class="hide"
-        accept="*/*"
-      >
-
-
-      <!-- Голосовое сообщение -->
-
-      <button
-        type="button"
-        class="voice"
-        id="voiceBtn"
-        onclick="toggleRecording()"
-        disabled
-        title="Голосовое сообщение"
-      >
-        🎙️
-      </button>
-
-
-      <!-- Текст -->
 
       <input
         id="text"
@@ -578,6 +509,33 @@ h1{
         autocomplete="off"
       >
 
+      <input
+        id="fileInput"
+        class="file-input"
+        type="file"
+        accept="image/*,audio/*,.pdf,.zip,.rar,.txt,.doc,.docx,.xls,.xlsx,.7z"
+        onchange="uploadFile(this.files[0])"
+      >
+
+      <button
+        type="button"
+        class="attach"
+        id="attach"
+        disabled
+        onclick="document.getElementById('fileInput').click()"
+      >
+        📎
+      </button>
+
+      <button
+        type="button"
+        class="record"
+        id="record"
+        disabled
+        onclick="toggleRecording()"
+      >
+        🎙️
+      </button>
 
       <button
         type="button"
@@ -596,25 +554,8 @@ h1{
 </div>
 
 
-<div id="uploadStatus" class="upload-status hide">
-
-  <div id="uploadText">
-    Загрузка...
-  </div>
-
-  <div class="progress">
-    <div
-      id="progressBar"
-      class="progress-bar"
-    ></div>
-  </div>
-
-</div>
-
-
-<div id="recordInfo" class="record-info hide">
-  🔴 Запись...
-  <span id="recordTime">0:00</span>
+<div id="uploadStatus" class="upload-status">
+  Загрузка...
 </div>
 
 
@@ -623,54 +564,39 @@ h1{
 <script>
 
 const SUPABASE_URL =
-'https://ukutofgxcdsnpjftloxb.supabase.co';
+  'https://ukutofgxcdsnpjftloxb.supabase.co';
 
 const SUPABASE_ANON_KEY =
-'sb_publishable_uuNwzGKCKd99_kM89BND1Q_SgWKjc2t';
+  'sb_publishable_uuNwzGKCKd99_kM89BND1Q_SgWKjc2t';
 
-
-const STORAGE_BUCKET =
-'chat-files';
-
-
-const MAX_FILE_SIZE =
-6 * 1024 * 1024;
-
-
-const sb =
-supabase.createClient(
+const sb = supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
 );
 
 
+/* ВАЖНО: твой приватный bucket */
+const BUCKET = 'attachments';
+
+
 let me = null;
 let myId = '';
 let current = null;
-let currentId = null;
 let allUsers = [];
 let channel = null;
 
 let mediaRecorder = null;
 let audioChunks = [];
-let recordStarted = 0;
-let recordTimer = null;
+let recordingStream = null;
 
 
-const $ = id =>
-document.getElementById(id);
+const $ = id => document.getElementById(id);
 
-
-/* =========================
-   АВТОРИЗАЦИЯ
-========================= */
 
 function toggle(){
 
   $('login').classList.toggle('hide');
-
   $('reg').classList.toggle('hide');
-
   $('err').textContent = '';
 
 }
@@ -679,8 +605,7 @@ function toggle(){
 function msgError(e){
 
   $('err').textContent =
-    e?.message ||
-    'Произошла ошибка';
+    e?.message || 'Произошла ошибка';
 
 }
 
@@ -705,7 +630,8 @@ function emailFor(username){
       b => b.toString(16).padStart(2,'0')
     ).join('');
 
-  return 'u' + hex +
+  return 'u' +
+    hex +
     '@private-messeng.local';
 
 }
@@ -721,54 +647,37 @@ async function doReg(){
     const password =
       $('rp').value;
 
-    if(!validName(username)){
-
+    if(!validName(username))
       throw Error(
         'Имя: 2–24 символа, без пробелов'
       );
 
-    }
-
-    if(password.length < 4){
-
+    if(password.length < 4)
       throw Error(
         'Пароль минимум 4 символа'
       );
-
-    }
 
     const email =
       emailFor(username);
 
     const {data,error} =
       await sb.auth.signUp({
-
         email,
-
         password,
-
         options:{
           data:{
             username
           }
         }
-
       });
 
-
-    if(error){
+    if(error)
       throw error;
-    }
 
-
-    if(!data.session){
-
+    if(!data.session)
       throw Error(
         'В Supabase нужно отключить подтверждение email'
       );
-
-    }
-
 
     await start(data.session);
 
@@ -791,38 +700,24 @@ async function doLogin(){
     const password =
       $('lp').value;
 
-
-    if(!validName(username)){
-
+    if(!validName(username))
       throw Error(
         'Проверь имя пользователя'
       );
 
-    }
-
-
     const email =
       emailFor(username);
 
-
     const {data,error} =
       await sb.auth.signInWithPassword({
-
         email,
-
         password
-
       });
 
-
-    if(error){
-
+    if(error)
       throw Error(
         'Неверное имя или пароль'
       );
-
-    }
-
 
     await start(data.session);
 
@@ -835,30 +730,20 @@ async function doLogin(){
 }
 
 
-/* =========================
-   ЗАПУСК
-========================= */
-
 async function start(session){
 
-  if(!session){
+  if(!session)
     return;
-  }
-
 
   const {
     data:{
       user
     },
     error
-  } =
-  await sb.auth.getUser();
+  } = await sb.auth.getUser();
 
-
-  if(error){
+  if(error)
     throw error;
-  }
-
 
   myId =
     user.id;
@@ -866,16 +751,8 @@ async function start(session){
   me =
     user.user_metadata.username || '';
 
-
-  $('auth')
-    .classList
-    .add('hide');
-
-
-  $('app')
-    .classList
-    .remove('hide');
-
+  $('auth').classList.add('hide');
+  $('app').classList.remove('hide');
 
   await loadUsers();
 
@@ -890,25 +767,23 @@ async function loadUsers(){
     data,
     error
   } =
-  await sb
-    .from('profiles')
-    .select('id,username')
-    .order('username');
-
+    await sb
+      .from('profiles')
+      .select('id,username')
+      .order('username');
 
   if(error){
 
     msgError(error);
-
     return;
 
   }
 
-
   allUsers =
     (data || [])
-      .filter(x => x.id !== myId);
-
+      .filter(
+        x => x.id !== myId
+      );
 
   renderUsers();
 
@@ -923,47 +798,34 @@ function renderUsers(){
       .trim()
       .toLowerCase();
 
-
   const list =
-    allUsers.filter(u =>
-      u.username
-        .toLowerCase()
-        .includes(q)
+    allUsers.filter(
+      u =>
+        u.username
+          .toLowerCase()
+          .includes(q)
     );
-
 
   $('list').innerHTML =
     list.length
-
-    ?
-
-    list.map(u => `
-
-      <div
-        class="user ${u.id === currentId ? 'active' : ''}"
-        onclick="openChat('${u.id}')"
-      >
-
-        <span class="dot"></span>
-
-        ${escapeHtml(u.username)}
-
-      </div>
-
-    `).join('')
-
-    :
-
-    `<div class="user muted">
-      Никого не найдено
-    </div>`;
+      ?
+      list.map(
+        u =>
+          `<div
+            class="user ${u.username === current ? 'active' : ''}"
+            onclick="openChat('${u.id}')"
+          >
+            <span class="dot"></span>
+            ${escapeHtml(u.username)}
+          </div>`
+      ).join('')
+      :
+      `<div class="user muted">
+        Никого не найдено
+      </div>`;
 
 }
 
-
-/* =========================
-   ЧАТ
-========================= */
 
 async function openChat(id){
 
@@ -972,53 +834,35 @@ async function openChat(id){
       x => x.id === id
     );
 
-
-  if(!u){
+  if(!u)
     return;
-  }
-
 
   current =
     u.username;
 
-  currentId =
-    u.id;
-
-
   $('chathead').textContent =
     '💬 ' + current;
 
-
-  $('text').disabled =
-    false;
-
-  $('send').disabled =
-    false;
-
-  $('attachBtn').disabled =
-    false;
-
-  $('voiceBtn').disabled =
-    false;
-
+  $('text').disabled = false;
+  $('send').disabled = false;
+  $('attach').disabled = false;
+  $('record').disabled = false;
 
   $('messages').innerHTML = '';
-
 
   const {
     data,
     error
   } =
-  await sb
-    .from('messages')
-    .select(
-      'id,sender_id,receiver_id,body,created_at'
-    )
-    .or(
-      `and(sender_id.eq.${myId},receiver_id.eq.${id}),and(sender_id.eq.${id},receiver_id.eq.${myId})`
-    )
-    .order('created_at');
-
+    await sb
+      .from('messages')
+      .select(
+        'id,sender_id,receiver_id,body,created_at'
+      )
+      .or(
+        `and(sender_id.eq.${myId},receiver_id.eq.${id}),and(sender_id.eq.${id},receiver_id.eq.${myId})`
+      )
+      .order('created_at');
 
   if(error){
 
@@ -1031,8 +875,11 @@ async function openChat(id){
 
   }
 
+  for(const m of data || []){
 
-  data.forEach(render);
+    await render(m);
+
+  }
 
   scroll();
 
@@ -1041,11 +888,10 @@ async function openChat(id){
 }
 
 
-function render(m){
+async function render(m){
 
   const d =
     document.createElement('div');
-
 
   d.className =
     'msg ' +
@@ -1053,44 +899,26 @@ function render(m){
       ? 'mine'
       : '');
 
-
   const bubble =
     document.createElement('div');
 
   bubble.className =
     'bubble';
 
-
-  const attachment =
-    parseAttachment(m.body);
-
-
-  if(attachment){
-
-    renderAttachment(
-      bubble,
-      attachment
+  const content =
+    await makeMessageContent(
+      m.body
     );
 
-  }else{
-
-    const text =
-      document.createElement('div');
-
-    text.textContent =
-      m.body || '';
-
-    bubble.appendChild(text);
-
-  }
-
+  bubble.appendChild(
+    content
+  );
 
   const time =
     document.createElement('div');
 
   time.className =
     'time';
-
 
   time.textContent =
     new Date(
@@ -1103,59 +931,272 @@ function render(m){
       }
     );
 
+  bubble.appendChild(
+    time
+  );
 
-  bubble.appendChild(time);
+  d.appendChild(
+    bubble
+  );
 
-  d.appendChild(bubble);
-
-  $('messages')
-    .appendChild(d);
+  $('messages').appendChild(
+    d
+  );
 
 }
 
 
-/* =========================
-   ОТПРАВКА ТЕКСТА
-========================= */
+async function makeMessageContent(body){
+
+  if(
+    typeof body === 'string' &&
+    body.startsWith(
+      '[[ATTACHMENT]]'
+    )
+  ){
+
+    try{
+
+      const attachment =
+        JSON.parse(
+          body.substring(
+            '[[ATTACHMENT]]'.length
+          )
+        );
+
+      return await createAttachmentElement(
+        attachment
+      );
+
+    }catch(e){
+
+      console.error(
+        'ATTACHMENT ERROR:',
+        e
+      );
+
+    }
+
+  }
+
+
+  const text =
+    document.createElement('div');
+
+  text.textContent =
+    body;
+
+  return text;
+
+}
+
+
+async function createAttachmentElement(a){
+
+  const box =
+    document.createElement('div');
+
+  box.className =
+    'file-card';
+
+  let url = '';
+
+  try{
+
+    const result =
+      await sb.storage
+        .from(BUCKET)
+        .createSignedUrl(
+          a.path,
+          3600
+        );
+
+    if(result.error)
+      throw result.error;
+
+    url =
+      result.data.signedUrl;
+
+  }catch(e){
+
+    console.error(
+      'SIGNED URL ERROR:',
+      e
+    );
+
+    const error =
+      document.createElement('div');
+
+    error.textContent =
+      'Не удалось открыть файл';
+
+    box.appendChild(
+      error
+    );
+
+    return box;
+
+  }
+
+
+  if(a.type === 'image'){
+
+    const img =
+      document.createElement('img');
+
+    img.className =
+      'chat-image';
+
+    img.src =
+      url;
+
+    img.alt =
+      a.name || 'Фото';
+
+    img.loading =
+      'lazy';
+
+    box.appendChild(
+      img
+    );
+
+
+    const link =
+      document.createElement('a');
+
+    link.className =
+      'file-link';
+
+    link.href =
+      url;
+
+    link.target =
+      '_blank';
+
+    link.rel =
+      'noopener';
+
+    link.textContent =
+      '🖼️ Открыть фото';
+
+    box.appendChild(
+      link
+    );
+
+
+  }else if(a.type === 'audio'){
+
+    const audio =
+      document.createElement('audio');
+
+    audio.className =
+      'audio-player';
+
+    audio.controls =
+      true;
+
+    audio.src =
+      url;
+
+    box.appendChild(
+      audio
+    );
+
+
+  }else{
+
+    const name =
+      document.createElement('div');
+
+    name.className =
+      'file-name';
+
+    name.textContent =
+      '📄 ' +
+      (a.name || 'Файл');
+
+    box.appendChild(
+      name
+    );
+
+
+    const size =
+      document.createElement('div');
+
+    size.className =
+      'file-size';
+
+    size.textContent =
+      formatSize(
+        a.size || 0
+      );
+
+    box.appendChild(
+      size
+    );
+
+
+    const link =
+      document.createElement('a');
+
+    link.className =
+      'file-link';
+
+    link.href =
+      url;
+
+    link.target =
+      '_blank';
+
+    link.rel =
+      'noopener';
+
+    link.download =
+      a.name || 'file';
+
+    link.textContent =
+      '📥 Скачать';
+
+    box.appendChild(
+      link
+    );
+
+  }
+
+
+  return box;
+
+}
+
 
 async function send(){
 
-  if(!current || !myId){
+  if(!current || !myId)
     return;
-  }
-
 
   const input =
     $('text');
 
-
   const body =
     input.value.trim();
 
-
-  if(!body){
+  if(!body)
     return;
-  }
-
 
   const u =
     allUsers.find(
-      x => x.id === currentId
+      x => x.username === current
     );
 
-
-  if(!u){
+  if(!u)
     return;
-  }
-
 
   const {
     data:{
       session
     }
   } =
-  await sb.auth.getSession();
-
+    await sb.auth.getSession();
 
   if(!session){
 
@@ -1167,34 +1208,24 @@ async function send(){
 
   }
 
-
   const button =
     $('send');
 
   button.disabled =
     true;
 
-
   try{
 
     const {
       error
     } =
-    await sb
-      .from('messages')
-      .insert({
-
-        sender_id:
-          myId,
-
-        receiver_id:
-          u.id,
-
-        body:
-          body
-
-      });
-
+      await sb
+        .from('messages')
+        .insert({
+          sender_id:myId,
+          receiver_id:u.id,
+          body:body
+        });
 
     if(error){
 
@@ -1212,29 +1243,17 @@ async function send(){
 
     }
 
-
     input.value = '';
 
-
-    render({
-
-      sender_id:
-        myId,
-
-      receiver_id:
-        u.id,
-
-      body:
-        body,
-
+    await render({
+      sender_id:myId,
+      receiver_id:u.id,
+      body:body,
       created_at:
         new Date().toISOString()
-
     });
 
-
     scroll();
-
 
   }catch(e){
 
@@ -1260,201 +1279,176 @@ async function send(){
 }
 
 
-/* =========================
-   ФАЙЛЫ
-========================= */
-
-function chooseFile(){
-
-  if(!currentId){
-    return;
-  }
-
-  $('fileInput').click();
-
-}
-
-
-$('fileInput').addEventListener(
-  'change',
-  async function(){
-
-    const file =
-      this.files[0];
-
-    this.value = '';
-
-    if(!file){
-      return;
-    }
-
-
-    await uploadFile(file);
-
-  }
-);
-
-
 async function uploadFile(file){
 
-  if(!currentId){
-    alert('Сначала выбери человека.');
-
+  if(!file)
     return;
-  }
 
-
-  if(file.size > MAX_FILE_SIZE){
+  if(!current){
 
     alert(
-      'Файл слишком большой.\n\n' +
-      'Сейчас максимальный размер — 6 МБ.'
+      'Сначала выбери человека'
     );
+
+    $('fileInput').value = '';
 
     return;
 
   }
 
 
-  const target =
+  const u =
     allUsers.find(
-      x => x.id === currentId
+      x => x.username === current
     );
 
+  if(!u){
 
-  if(!target){
+    $('fileInput').value = '';
+
     return;
+
   }
 
 
-  showUpload(
-    'Загрузка файла...',
-    0
-  );
+  const MAX_SIZE =
+    50 * 1024 * 1024;
+
+  if(file.size > MAX_SIZE){
+
+    alert(
+      'Файл слишком большой. Максимум 50 МБ.'
+    );
+
+    $('fileInput').value = '';
+
+    return;
+
+  }
 
 
   try{
 
+    showUpload(
+      '⏳ Загружаю файл...'
+    );
+
+
     const extension =
-      getExtension(file.name);
+      getExtension(
+        file.name
+      );
 
 
-    const random =
-      crypto.randomUUID();
+    const safeName =
+      Date.now() +
+      '_' +
+      Math.random()
+        .toString(36)
+        .substring(2,10) +
+      extension;
 
 
     const path =
       myId +
       '/' +
-      random +
-      (extension
-        ? '.' + extension
-        : '');
+      safeName;
 
 
     const {
       error
     } =
-    await sb.storage
-      .from(STORAGE_BUCKET)
-      .upload(
-        path,
-        file,
-        {
-          cacheControl:'3600',
-          upsert:false,
-          contentType:
-            file.type ||
-            'application/octet-stream'
-        }
-      );
+      await sb.storage
+        .from(BUCKET)
+        .upload(
+          path,
+          file,
+          {
+            cacheControl:'3600',
+            upsert:false,
+            contentType:
+              file.type ||
+              'application/octet-stream'
+          }
+        );
 
 
-    if(error){
+    if(error)
       throw error;
+
+
+    let type =
+      'file';
+
+
+    if(
+      file.type &&
+      file.type.startsWith(
+        'image/'
+      )
+    ){
+
+      type =
+        'image';
+
+    }else if(
+      file.type &&
+      file.type.startsWith(
+        'audio/'
+      )
+    ){
+
+      type =
+        'audio';
+
     }
-
-
-    setUploadProgress(70);
-
-
-    const {
-      data
-    } =
-    sb.storage
-      .from(STORAGE_BUCKET)
-      .getPublicUrl(path);
 
 
     const attachment = {
 
-      type:
-        file.type.startsWith('image/')
-          ? 'image'
-          : 'file',
+      type:type,
 
-      name:
-        file.name,
+      name:file.name,
 
-      size:
-        file.size,
+      size:file.size,
 
-      mime:
-        file.type ||
-        'application/octet-stream',
+      mime:file.type,
 
-      path:
-        path,
-
-      url:
-        data.publicUrl
+      path:path
 
     };
 
 
     const body =
       '[[ATTACHMENT]]' +
-      JSON.stringify(attachment);
+      JSON.stringify(
+        attachment
+      );
 
 
     const {
-      error:
-        messageError
+      error:messageError
     } =
-    await sb
-      .from('messages')
-      .insert({
-
-        sender_id:
-          myId,
-
-        receiver_id:
-          target.id,
-
-        body:
-          body
-
-      });
+      await sb
+        .from('messages')
+        .insert({
+          sender_id:myId,
+          receiver_id:u.id,
+          body:body
+        });
 
 
-    if(messageError){
+    if(messageError)
       throw messageError;
-    }
 
 
-    setUploadProgress(100);
+    await render({
 
+      sender_id:myId,
 
-    render({
+      receiver_id:u.id,
 
-      sender_id:
-        myId,
-
-      receiver_id:
-        target.id,
-
-      body:
-        body,
+      body:body,
 
       created_at:
         new Date().toISOString()
@@ -1465,6 +1459,17 @@ async function uploadFile(file){
     scroll();
 
 
+    showUpload(
+      '✅ Файл отправлен'
+    );
+
+
+    setTimeout(
+      hideUpload,
+      1200
+    );
+
+
   }catch(e){
 
     console.error(
@@ -1472,179 +1477,71 @@ async function uploadFile(file){
       e
     );
 
+    hideUpload();
 
     alert(
-      'Ошибка загрузки:\n' +
+      'Ошибка загрузки: ' +
       (e.message || e)
-    );
-
-
-  }finally{
-
-    setTimeout(
-      hideUpload,
-      500
     );
 
   }
 
+
+  $('fileInput').value = '';
+
 }
 
 
-function parseAttachment(body){
+async function toggleRecording(){
+
+  if(mediaRecorder){
+
+    if(
+      mediaRecorder.state ===
+      'recording'
+    ){
+
+      mediaRecorder.stop();
+
+    }
+
+    return;
+
+  }
+
+
+  if(!current){
+
+    alert(
+      'Сначала выбери человека'
+    );
+
+    return;
+
+  }
+
 
   if(
-    typeof body !== 'string' ||
-    !body.startsWith('[[ATTACHMENT]]')
+    !navigator.mediaDevices ||
+    !navigator.mediaDevices.getUserMedia
   ){
 
-    return null;
+    alert(
+      'Этот браузер не поддерживает запись с микрофона.'
+    );
+
+    return;
 
   }
 
 
   try{
 
-    return JSON.parse(
-      body.substring(
-        '[[ATTACHMENT]]'.length
-      )
-    );
-
-  }catch(e){
-
-    return null;
-
-  }
-
-}
+    recordingStream =
+      await navigator.mediaDevices
+        .getUserMedia({
+          audio:true
+        });
 
 
-function renderAttachment(
-  bubble,
-  a
-){
-
-  const box =
-    document.createElement('div');
-
-  box.className =
-    'file-card';
-
-
-  if(a.type === 'image'){
-
-    const img =
-      document.createElement('img');
-
-    img.className =
-      'file-image';
-
-    img.src =
-      a.url;
-
-    img.alt =
-      a.name || 'Фото';
-
-    img.loading =
-      'lazy';
-
-    box.appendChild(img);
-
-  }
-
-
-  if(a.type === 'audio'){
-
-    const audio =
-      document.createElement('audio');
-
-    audio.className =
-      'audio-player';
-
-    audio.controls =
-      true;
-
-    audio.src =
-      a.url;
-
-    box.appendChild(audio);
-
-  }
-
-
-  const name =
-    document.createElement('div');
-
-  name.className =
-    'file-name';
-
-  name.textContent =
-    a.name ||
-    'Файл';
-
-  box.appendChild(name);
-
-
-  if(a.size){
-
-    const size =
-      document.createElement('div');
-
-    size.className =
-      'file-size';
-
-    size.textContent =
-      formatSize(a.size);
-
-    box.appendChild(size);
-
-  }
-
-
-  const actions =
-    document.createElement('div');
-
-  actions.className =
-    'file-actions';
-
-
-  const open =
-    document.createElement('a');
-
-  open.href =
-    a.url;
-
-  open.target =
-    '_blank';
-
-  open.rel =
-    'noopener';
-
-  open.textContent =
-    'Открыть';
-
-
-  actions.appendChild(open);
-
-
-  const download =
-    document.createElement('a');
-
-  download.href =
-    a.url;
-
-  download.target =
-    '_blank';
-
-  download.rel =
-    'noopener';
-
-  download.textContent =
-    '📥 Скачать';
-
-
-  actions.appendChild(download);
-
-
-  box.a
+ 
