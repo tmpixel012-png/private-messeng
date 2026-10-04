@@ -1,737 +1,604 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0b0f14">
-  <title>Private Messeng</title>
-
-  <style>
-    * { box-sizing: border-box; }
-
-    html, body {
-      margin: 0;
-      min-height: 100%;
-      background: #0b0f14;
-      color: #e8edf3;
-      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    body {
-      min-height: 100vh;
-    }
-
-    button, input, textarea {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .screen {
-      min-height: 100vh;
-    }
-
-    .auth-screen {
-      display: grid;
-      place-items: center;
-      padding: 20px;
-    }
-
-    .auth-card {
-      width: min(420px, 100%);
-      background: #121820;
-      border: 1px solid #26303c;
-      border-radius: 20px;
-      padding: 26px;
-      box-shadow: 0 18px 60px rgba(0,0,0,.35);
-    }
-
-    .brand {
-      margin: 0 0 8px;
-      font-size: 28px;
-    }
-
-    .muted {
-      color: #8995a3;
-    }
-
-    .auth-tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin: 22px 0 18px;
-    }
-
-    .tab,
-    .secondary-btn {
-      border: 1px solid #2b3745;
-      background: #18212c;
-      color: #dce5ee;
-      border-radius: 10px;
-      padding: 11px 14px;
-    }
-
-    .tab.active {
-      background: #2563eb;
-      border-color: #2563eb;
-      color: white;
-    }
-
-    .field {
-      margin-bottom: 13px;
-    }
-
-    .field label {
-      display: block;
-      margin-bottom: 7px;
-      color: #aeb9c6;
-      font-size: 14px;
-    }
-
-    .field input,
-    .message-input {
-      width: 100%;
-      border: 1px solid #2b3745;
-      background: #0e141b;
-      color: #eef4fa;
-      border-radius: 11px;
-      outline: none;
-    }
-
-    .field input {
-      padding: 12px 13px;
-    }
-
-    .field input:focus,
-    .message-input:focus {
-      border-color: #3b82f6;
-    }
-
-    .primary-btn {
-      width: 100%;
-      border: 0;
-      border-radius: 11px;
-      padding: 12px 14px;
-      background: #2563eb;
-      color: white;
-      font-weight: 700;
-    }
-
-    .primary-btn:disabled {
-      opacity: .55;
-      cursor: not-allowed;
-    }
-
-    .error {
-      min-height: 20px;
-      margin: 10px 0;
-      color: #ff8f8f;
-      font-size: 14px;
-    }
-
-    .app {
-      display: grid;
-      grid-template-columns: 320px 1fr;
-      height: 100vh;
-      height: 100dvh;
-      overflow: hidden;
-    }
-
-    .sidebar {
-      min-width: 0;
-      border-right: 1px solid #222c37;
-      background: #0f151c;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .sidebar-head {
-      padding: 16px;
-      border-bottom: 1px solid #222c37;
-    }
-
-    .sidebar-title {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .sidebar-title h1 {
-      margin: 0;
-      font-size: 20px;
-    }
-
-    .icon-btn {
-      width: 38px;
-      height: 38px;
-      border: 1px solid #2b3745;
-      background: #18212c;
-      color: #e8edf3;
-      border-radius: 10px;
-    }
-
-    .search {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #2b3745;
-      background: #0b1016;
-      color: #eef4fa;
-      border-radius: 10px;
-      outline: none;
-    }
-
-    .user-list {
-      overflow: auto;
-      padding: 8px;
-    }
-
-    .user-item {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      border: 0;
-      background: transparent;
-      color: #e8edf3;
-      padding: 11px 10px;
-      border-radius: 11px;
-      text-align: left;
-    }
-
-    .user-item:hover,
-    .user-item.active {
-      background: #1a2531;
-    }
-
-    .avatar {
-      flex: 0 0 38px;
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      background: #26384f;
-      color: #dbeafe;
-      font-weight: 700;
-    }
-
-    .user-name {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .sidebar-foot {
-      margin-top: auto;
-      padding: 12px 14px;
-      border-top: 1px solid #222c37;
-    }
-
-    .foot-row {
-      display: flex;
-      gap: 8px;
-    }
-
-    .foot-row button {
-      flex: 1;
-    }
-
-    .chat {
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      background: #0b1016;
-    }
-
-    .chat-head {
-      min-height: 64px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 16px;
-      border-bottom: 1px solid #222c37;
-      background: #0f151c;
-    }
-
-    .chat-head .back {
-      display: none;
-    }
-
-    .chat-user {
-      font-weight: 700;
-    }
-
-    .messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 18px max(16px, calc((100% - 900px) / 2));
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .empty-chat {
-      margin: auto;
-      text-align: center;
-      color: #738091;
-    }
-
-    .message {
-      max-width: min(72%, 620px);
-      padding: 9px 11px;
-      border-radius: 14px;
-      background: #18212c;
-      align-self: flex-start;
-      overflow-wrap: anywhere;
-    }
-
-    .message.mine {
-      background: #17417e;
-      align-self: flex-end;
-    }
-
-    .message-time {
-      display: block;
-      margin-top: 5px;
-      color: #91a0b0;
-      font-size: 11px;
-      text-align: right;
-    }
-
-    .message.mine .message-time {
-      color: #b7cceb;
-    }
-
-    .message-text {
-      white-space: pre-wrap;
-      line-height: 1.4;
-    }
-
-    .attachment {
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-    }
-
-    .attachment img {
-      display: block;
-      max-width: min(100%, 420px);
-      max-height: 420px;
-      border-radius: 10px;
-      object-fit: contain;
-      background: #0b1016;
-    }
-
-    .attachment audio {
-      width: min(100%, 420px);
-    }
-
-    .file-link {
-      color: #dbeafe;
-      text-decoration: none;
-      padding: 10px;
-      border: 1px solid rgba(255,255,255,.14);
-      border-radius: 10px;
-      display: inline-block;
-    }
-
-    .composer-wrap {
-      padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
-      border-top: 1px solid #222c37;
-      background: #0f151c;
-    }
-
-    .composer {
-      max-width: 900px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: auto auto 1fr auto;
-      gap: 8px;
-      align-items: end;
-    }
-
-    .message-input {
-      min-height: 42px;
-      max-height: 130px;
-      resize: vertical;
-      padding: 10px 12px;
-    }
-
-    .send-btn {
-      border: 0;
-      background: #2563eb;
-      color: white;
-      border-radius: 10px;
-      padding: 11px 17px;
-      min-height: 42px;
-      font-weight: 700;
-    }
-
-    .status {
-      min-height: 18px;
-      margin: 4px auto 0;
-      max-width: 900px;
-      color: #8e9aaa;
-      font-size: 12px;
-    }
-
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.65);
-      display: grid;
-      place-items: center;
-      padding: 18px;
-      z-index: 20;
-    }
-
-    .modal-card {
-      width: min(430px, 100%);
-      background: #121820;
-      border: 1px solid #2b3745;
-      border-radius: 16px;
-      padding: 20px;
-    }
-
-    .modal-card h2 {
-      margin-top: 0;
-    }
-
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 18px;
-    }
-
-    .recording {
-      border-color: #ef4444 !important;
-      color: #fecaca !important;
-    }
-
-    @media (max-width: 720px) {
-      .app {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        display: flex;
-      }
-
-      .chat {
-        display: none;
-      }
-
-      .app.chat-open .sidebar {
-        display: none;
-      }
-
-      .app.chat-open .chat {
-        display: flex;
-      }
-
-      .chat-head .back {
-        display: block;
-      }
-
-      .messages {
-        padding: 14px 10px;
-      }
-
-      .message {
-        max-width: 86%;
-      }
-
-      .composer-wrap {
-        padding-left: 8px;
-        padding-right: 8px;
-      }
-
-      .composer {
-        grid-template-columns: auto auto 1fr auto;
-        gap: 5px;
-      }
-
-      .icon-btn {
-        width: 40px;
-      }
-
-      .send-btn {
-        padding-left: 12px;
-        padding-right: 12px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Private Messeng</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#0f1117;
+  color:#fff;
+}
+
+body{
+  overflow:hidden;
+}
+
+button,
+input,
+textarea{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.hidden{
+  display:none!important;
+}
+
+#authScreen{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:
+    radial-gradient(circle at top,#222a3d 0,#0f1117 55%);
+}
+
+.authBox{
+  width:100%;
+  max-width:420px;
+  background:#171a23;
+  border:1px solid #292e3c;
+  border-radius:22px;
+  padding:28px;
+  box-shadow:0 20px 70px rgba(0,0,0,.4);
+}
+
+.logo{
+  font-size:30px;
+  font-weight:800;
+  text-align:center;
+  margin-bottom:8px;
+}
+
+.subtitle{
+  color:#9da5b8;
+  text-align:center;
+  margin-bottom:25px;
+}
+
+.tabs{
+  display:flex;
+  gap:8px;
+  margin-bottom:18px;
+}
+
+.tab{
+  flex:1;
+  padding:12px;
+  border:0;
+  border-radius:12px;
+  background:#222633;
+  color:#aeb6c8;
+}
+
+.tab.active{
+  background:#5865f2;
+  color:white;
+}
+
+.field{
+  margin-bottom:13px;
+}
+
+.field label{
+  display:block;
+  font-size:13px;
+  color:#aab1c2;
+  margin-bottom:6px;
+}
+
+.field input{
+  width:100%;
+  padding:13px;
+  border-radius:12px;
+  border:1px solid #303646;
+  background:#10131a;
+  color:#fff;
+  outline:none;
+}
+
+.field input:focus{
+  border-color:#5865f2;
+}
+
+.primary{
+  width:100%;
+  border:0;
+  padding:14px;
+  border-radius:13px;
+  background:#5865f2;
+  color:#fff;
+  font-weight:700;
+  margin-top:5px;
+}
+
+.primary:disabled{
+  opacity:.5;
+}
+
+.status{
+  min-height:20px;
+  color:#ff8b8b;
+  text-align:center;
+  font-size:13px;
+  margin-top:12px;
+}
+
+#app{
+  width:100%;
+  height:100%;
+  display:flex;
+}
+
+.sidebar{
+  width:310px;
+  min-width:310px;
+  background:#151821;
+  border-right:1px solid #292e39;
+  display:flex;
+  flex-direction:column;
+}
+
+.sidebarTop{
+  padding:18px;
+  border-bottom:1px solid #292e39;
+}
+
+.brand{
+  font-size:21px;
+  font-weight:800;
+  margin-bottom:5px;
+}
+
+.currentUser{
+  color:#929bad;
+  font-size:13px;
+  margin-bottom:15px;
+}
+
+.search{
+  width:100%;
+  padding:11px 12px;
+  border:1px solid #303646;
+  background:#0f1218;
+  color:white;
+  border-radius:11px;
+  outline:none;
+}
+
+.users{
+  flex:1;
+  overflow:auto;
+  padding:8px;
+}
+
+.user{
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:5px;
+  cursor:pointer;
+}
+
+.user:hover{
+  background:#202430;
+}
+
+.user.active{
+  background:#29304a;
+}
+
+.userName{
+  font-weight:700;
+}
+
+.userId{
+  color:#777f91;
+  font-size:11px;
+  margin-top:3px;
+}
+
+.sidebarBottom{
+  padding:12px;
+  border-top:1px solid #292e39;
+}
+
+.secondary{
+  width:100%;
+  border:0;
+  padding:11px;
+  border-radius:11px;
+  background:#242936;
+  color:#ddd;
+}
+
+.chat{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+}
+
+.chatHeader{
+  height:65px;
+  min-height:65px;
+  display:flex;
+  align-items:center;
+  padding:0 18px;
+  border-bottom:1px solid #292e39;
+  background:#151821;
+}
+
+.chatTitle{
+  font-weight:800;
+}
+
+.messages{
+  flex:1;
+  overflow-y:auto;
+  padding:20px;
+}
+
+.empty{
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#70788a;
+  text-align:center;
+}
+
+.messageRow{
+  display:flex;
+  margin-bottom:10px;
+}
+
+.messageRow.mine{
+  justify-content:flex-end;
+}
+
+.message{
+  max-width:min(75%,600px);
+  padding:10px 13px;
+  border-radius:15px;
+  background:#202532;
+  word-wrap:break-word;
+}
+
+.messageRow.mine .message{
+  background:#3d4bc2;
+}
+
+.messageTime{
+  margin-top:5px;
+  font-size:10px;
+  color:#aab1c0;
+  text-align:right;
+}
+
+.messageText{
+  white-space:pre-wrap;
+}
+
+.attachment{
+  margin-top:8px;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.attachment img{
+  max-width:100%;
+  max-height:350px;
+  display:block;
+}
+
+.attachment audio{
+  width:100%;
+  max-width:350px;
+}
+
+.fileLink{
+  display:block;
+  padding:10px;
+  background:rgba(0,0,0,.2);
+  color:#fff;
+  text-decoration:none;
+  border-radius:9px;
+}
+
+.composer{
+  padding:12px;
+  border-top:1px solid #292e39;
+  background:#151821;
+}
+
+.attachPreview{
+  color:#aeb5c4;
+  font-size:12px;
+  margin-bottom:8px;
+  min-height:16px;
+}
+
+.composerRow{
+  display:flex;
+  gap:8px;
+  align-items:flex-end;
+}
+
+.composer textarea{
+  flex:1;
+  min-height:45px;
+  max-height:130px;
+  resize:none;
+  border:1px solid #303646;
+  background:#0f1218;
+  color:#fff;
+  border-radius:12px;
+  padding:12px;
+  outline:none;
+}
+
+.iconBtn{
+  width:45px;
+  height:45px;
+  border:0;
+  border-radius:12px;
+  background:#242936;
+  color:white;
+}
+
+.sendBtn{
+  width:55px;
+  height:45px;
+  border:0;
+  border-radius:12px;
+  background:#5865f2;
+  color:white;
+  font-weight:700;
+}
+
+.recording{
+  background:#c93636!important;
+}
+
+#fileInput{
+  display:none;
+}
+
+.mobileBack{
+  display:none;
+}
+
+@media(max-width:750px){
+
+  .sidebar{
+    width:100%;
+    min-width:0;
+  }
+
+  .chat{
+    display:none;
+  }
+
+  #app.chatOpen .sidebar{
+    display:none;
+  }
+
+  #app.chatOpen .chat{
+    display:flex;
+  }
+
+  .mobileBack{
+    display:block;
+    margin-right:12px;
+    border:0;
+    background:transparent;
+    color:white;
+    font-size:22px;
+  }
+
+  .message{
+    max-width:88%;
+  }
+}
+</style>
 </head>
 
 <body>
 
-<section id="authScreen" class="screen auth-screen">
-  <div class="auth-card">
-    <h1 class="brand">Private Messeng</h1>
-    <div class="muted">Приватный мессенджер для своих</div>
+<div id="authScreen">
 
-    <div class="auth-tabs">
-      <button id="loginTab" class="tab active" type="button">Вход</button>
-      <button id="registerTab" class="tab" type="button">Регистрация</button>
+  <div class="authBox">
+
+    <div class="logo">Private Messeng</div>
+    <div class="subtitle">Приватный мессенджер</div>
+
+    <div class="tabs">
+      <button id="loginTab" class="tab active">Вход</button>
+      <button id="registerTab" class="tab">Регистрация</button>
     </div>
 
     <form id="authForm">
+
       <div class="field">
-        <label for="username">Имя пользователя</label>
+        <label>Имя пользователя</label>
         <input
           id="username"
-          name="username"
+          type="text"
           autocomplete="username"
-          maxlength="32"
+          maxlength="30"
           required
+          placeholder="Например: timblogplay"
         >
       </div>
 
       <div class="field">
-        <label for="password">Пароль</label>
+        <label>Пароль</label>
         <input
           id="password"
-          name="password"
           type="password"
           autocomplete="current-password"
           minlength="6"
           required
+          placeholder="Минимум 6 символов"
         >
       </div>
 
-      <div id="authError" class="error"></div>
-
-      <button id="authSubmit" class="primary-btn" type="submit">
+      <button id="authButton" class="primary" type="submit">
         Войти
       </button>
+
     </form>
-  </div>
-</section>
 
-
-<main id="app" class="app hidden">
-
-  <aside class="sidebar">
-
-    <div class="sidebar-head">
-      <div class="sidebar-title">
-        <h1>Сообщения</h1>
-
-        <button
-          id="notificationBtn"
-          class="icon-btn"
-          type="button"
-          title="Разрешить уведомления"
-        >
-          🔔
-        </button>
-      </div>
-
-      <input
-        id="userSearch"
-        class="search"
-        type="search"
-        placeholder="Поиск по username"
-        autocomplete="off"
-      >
-    </div>
-
-    <div id="userList" class="user-list"></div>
-
-    <div class="sidebar-foot">
-
-      <div
-        id="currentUser"
-        class="muted"
-        style="margin-bottom:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"
-      ></div>
-
-      <div class="foot-row">
-        <button id="logoutBtn" class="secondary-btn" type="button">
-          Выйти
-        </button>
-      </div>
-
-    </div>
-
-  </aside>
-
-
-  <section class="chat">
-
-    <header class="chat-head">
-
-      <button
-        id="backBtn"
-        class="icon-btn back"
-        type="button"
-        aria-label="Назад"
-      >
-        ←
-      </button>
-
-      <div id="chatAvatar" class="avatar">?</div>
-
-      <div id="chatUser" class="chat-user">
-        Выберите пользователя
-      </div>
-
-    </header>
-
-
-    <div id="messages" class="messages">
-      <div class="empty-chat">
-        Выберите пользователя слева, чтобы начать чат.
-      </div>
-    </div>
-
-
-    <div class="composer-wrap">
-
-      <div class="composer">
-
-        <button
-          id="attachBtn"
-          class="icon-btn"
-          type="button"
-          title="Прикрепить файл"
-        >
-          📎
-        </button>
-
-        <button
-          id="voiceBtn"
-          class="icon-btn"
-          type="button"
-          title="Записать голосовое"
-        >
-          🎙️
-        </button>
-
-        <textarea
-          id="messageInput"
-          class="message-input"
-          rows="1"
-          placeholder="Сообщение"
-          disabled
-        ></textarea>
-
-        <button
-          id="sendBtn"
-          class="send-btn"
-          type="button"
-          disabled
-        >
-          Отправить
-        </button>
-
-      </div>
-
-      <div id="composerStatus" class="status"></div>
-
-      <input
-        id="fileInput"
-        type="file"
-        class="hidden"
-        accept="image/*,audio/*,.pdf,.zip,.rar,.txt,.doc,.docx,.xls,.xlsx,.7z"
-      >
-
-    </div>
-
-  </section>
-
-</main>
-
-
-<div id="notificationModal" class="modal hidden">
-
-  <div class="modal-card">
-
-    <h2>Уведомления</h2>
-
-    <div id="notificationText" class="muted">
-      Разрешите уведомления браузера, чтобы видеть новые сообщения,
-      когда вкладка скрыта.
-    </div>
-
-    <div class="modal-actions">
-
-      <button
-        id="notificationClose"
-        class="secondary-btn"
-        type="button"
-      >
-        Закрыть
-      </button>
-
-      <button
-        id="notificationAllow"
-        class="primary-btn"
-        style="width:auto"
-        type="button"
-      >
-        Разрешить
-      </button>
-
-    </div>
+    <div id="authStatus" class="status"></div>
 
   </div>
 
 </div>
 
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<div id="app" class="hidden">
+
+  <aside class="sidebar">
+
+    <div class="sidebarTop">
+
+      <div class="brand">Private Messeng</div>
+
+      <div id="currentUser" class="currentUser">
+        Загрузка...
+      </div>
+
+      <input
+        id="searchInput"
+        class="search"
+        placeholder="Поиск пользователя..."
+      >
+
+    </div>
+
+    <div id="users" class="users"></div>
+
+    <div class="sidebarBottom">
+
+      <button id="logoutButton" class="secondary">
+        Выйти
+      </button>
+
+    </div>
+
+  </aside>
+
+
+  <main class="chat">
+
+    <div class="chatHeader">
+
+      <button id="mobileBack" class="mobileBack">
+        ←
+      </button>
+
+      <div id="chatTitle" class="chatTitle">
+        Выберите пользователя
+      </div>
+
+    </div>
+
+
+    <div id="messages" class="messages">
+
+      <div class="empty">
+        Выберите пользователя слева,<br>
+        чтобы начать общение.
+      </div>
+
+    </div>
+
+
+    <div class="composer">
+
+      <div id="attachPreview" class="attachPreview"></div>
+
+      <div class="composerRow">
+
+        <button
+          id="fileButton"
+          class="iconBtn"
+          title="Файл"
+          type="button"
+        >
+          📎
+        </button>
+
+        <button
+          id="recordButton"
+          class="iconBtn"
+          title="Голосовое сообщение"
+          type="button"
+        >
+          🎤
+        </button>
+
+        <textarea
+          id="messageInput"
+          placeholder="Написать сообщение..."
+        ></textarea>
+
+        <button
+          id="sendButton"
+          class="sendBtn"
+          type="button"
+        >
+          ➤
+        </button>
+
+      </div>
+
+      <input
+        id="fileInput"
+        type="file"
+        accept="image/*,audio/*,.pdf,.zip,.rar,.txt,.doc,.docx,.xls,.xlsx,.7z"
+      >
+
+    </div>
+
+  </main>
+
+</div>
+
 
 <script>
-"use strict";
-
-
-/* =========================
-   SUPABASE
-========================= */
-
 const SUPABASE_URL =
   "https://ukutofgxcdsnpjftloxb.supabase.co";
 
 const SUPABASE_ANON_KEY =
   "sb_publishable_uuNwzGKCKd99_kM89BND1Q_SgWKjc2t";
 
-const BUCKET = "attachments";
-
-const MAX_FILE_SIZE =
-  50 * 1024 * 1024;
-
-const ATTACHMENT_PREFIX =
-  "[[ATTACHMENT]]";
-
-
-const { createClient } = supabase;
-
-
-/*
-  ГЛАВНОЕ ИСПРАВЛЕНИЕ.
-
-  Сессия Supabase сохраняется в localStorage.
-  Поэтому после F5 пользователь остаётся авторизованным.
-*/
-
-const db = createClient(
+const db = supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY,
   {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: false,
+      detectSessionInUrl: true,
       storage: window.localStorage,
       storageKey: "private-messeng-auth"
     }
@@ -739,2762 +606,1440 @@ const db = createClient(
 );
 
 
-const $ = id =>
-  document.getElementById(id);
-
-
-/* =========================
-   STATE
-========================= */
-
 const state = {
-  mode: "login",
-
   session: null,
   user: null,
   profile: null,
-
-  profiles: [],
-
   selectedUser: null,
-
   messages: [],
-
-  realtime: null,
-
-  recording: false,
-  mediaRecorder: null,
-  audioChunks: [],
-
-  loadingMessages: false,
-  messageRequest: 0,
-
-  starting: false
+  channel: null,
+  attachment: null
 };
 
 
-/* =========================
-   HELPERS
-========================= */
+let authMode = "login";
+let booting = false;
+let recorder = null;
+let recorderChunks = [];
+let recordingStream = null;
 
-function normalizeUsername(value) {
-  return String(value || "")
+
+const $ = id => document.getElementById(id);
+
+
+function normalizeUsername(value){
+  return value
     .trim()
-    .toLowerCase();
+    .toLowerCase()
+    .replace(/\s+/g,"");
 }
 
 
-function validUsername(value) {
-  return /^[a-zA-Z0-9_.-]{3,32}$/.test(value);
-}
+function authEmail(username){
+  const normalized = normalizeUsername(username);
 
+  let hash = 0;
 
-/*
-  Один и тот же username всегда получает
-  один и тот же "служебный" email.
-*/
-
-function usernameEmail(username) {
-
-  const normalized =
-    normalizeUsername(username);
-
-  let hash = 2166136261;
-
-  for (
-    let i = 0;
-    i < normalized.length;
-    i += 1
-  ) {
-    hash ^= normalized.charCodeAt(i);
-
-    hash =
-      Math.imul(hash, 16777619);
+  for(let i=0;i<normalized.length;i++){
+    hash = ((hash << 5) - hash) + normalized.charCodeAt(i);
+    hash |= 0;
   }
 
-  const hex =
-    (hash >>> 0)
-      .toString(16)
-      .padStart(8, "0");
+  const safe = Math.abs(hash).toString(16);
 
-  return (
-    "u" +
-    hex +
-    "@private-messeng.local"
-  );
+  return "u" + safe + "@private-messeng.local";
 }
 
 
-function showAuthError(message) {
-  $("authError").textContent =
-    message || "";
+function setScreen(logged){
+  $("authScreen").classList.toggle("hidden",logged);
+  $("app").classList.toggle("hidden",!logged);
 }
 
 
-function setBusy(
-  button,
-  busy,
-  busyText
-) {
-
-  button.disabled = busy;
-
-  if (busy) {
-
-    button.dataset.oldText =
-      button.textContent;
-
-    button.textContent =
-      busyText || "Подождите...";
-
-  } else if (button.dataset.oldText) {
-
-    button.textContent =
-      button.dataset.oldText;
-
-    delete button.dataset.oldText;
-  }
+function setAuthStatus(text,error=true){
+  $("authStatus").textContent = text || "";
+  $("authStatus").style.color =
+    error ? "#ff8b8b" : "#76e39b";
 }
 
 
-function initials(username) {
-
-  return String(username || "?")
-    .slice(0, 1)
-    .toUpperCase();
-}
-
-
-function escapeHtml(value) {
-
+function escapeHtml(value){
   return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
 
 
-function formatTime(value) {
-
-  const date =
-    new Date(value);
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
-    return "";
-  }
+function formatTime(value){
+  const date = new Date(value);
 
   return date.toLocaleTimeString(
-    [],
+    "ru-RU",
     {
-      hour: "2-digit",
-      minute: "2-digit"
+      hour:"2-digit",
+      minute:"2-digit"
     }
   );
 }
 
 
-function isAttachment(body) {
+async function ensureProfile(){
 
-  return (
-    typeof body === "string" &&
-    body.startsWith(
-      ATTACHMENT_PREFIX
-    )
-  );
-}
-
-
-function parseAttachment(body) {
-
-  if (!isAttachment(body))
-    return null;
-
-  try {
-
-    const data =
-      JSON.parse(
-        body.slice(
-          ATTACHMENT_PREFIX.length
-        )
-      );
-
-    if (
-      !data ||
-      typeof data.path !== "string" ||
-      typeof data.name !== "string"
-    ) {
-      return null;
-    }
-
-    return data;
-
-  } catch {
-
-    return null;
-  }
-}
-
-
-function attachmentType(file) {
-
-  const mime =
-    String(
-      file.type || ""
-    ).toLowerCase();
-
-  const name =
-    String(
-      file.name || ""
-    ).toLowerCase();
-
-
-  if (
-    mime.startsWith("image/")
-  ) {
-    return "image";
+  if(!state.user){
+    throw new Error("Нет пользователя");
   }
 
-
-  if (
-    mime.startsWith("audio/")
-  ) {
-    return "audio";
-  }
-
-
-  const allowed = [
-    ".pdf",
-    ".zip",
-    ".rar",
-    ".txt",
-    ".doc",
-    ".docx",
-    ".xls",
-    ".xlsx",
-    ".7z"
-  ];
-
-
-  if (
-    allowed.some(
-      ext => name.endsWith(ext)
-    )
-  ) {
-    return "file";
-  }
-
-
-  return null;
-}
-
-
-function setScreen(authenticated) {
-
-  $("authScreen")
-    .classList
-    .toggle(
-      "hidden",
-      authenticated
-    );
-
-  $("app")
-    .classList
-    .toggle(
-      "hidden",
-      !authenticated
-    );
-}
-
-
-/* =========================
-   AUTH MODE
-========================= */
-
-function setMode(mode) {
-
-  state.mode = mode;
-
-  $("loginTab")
-    .classList
-    .toggle(
-      "active",
-      mode === "login"
-    );
-
-  $("registerTab")
-    .classList
-    .toggle(
-      "active",
-      mode === "register"
-    );
-
-
-  $("authSubmit").textContent =
-    mode === "login"
-      ? "Войти"
-      : "Зарегистрироваться";
-
-
-  $("password").autocomplete =
-    mode === "login"
-      ? "current-password"
-      : "new-password";
-
-
-  showAuthError("");
-}
-
-
-/* =========================
-   PROFILE
-========================= */
-
-async function findProfileByUsername(
-  username
-) {
-
-  const normalized =
-    normalizeUsername(username);
-
-  const {
-    data,
-    error
-  } = await db
+  const {data,error} = await db
     .from("profiles")
-    .select("id, username")
-    .eq(
-      "username",
-      normalized
-    )
+    .select("id,username")
+    .eq("id",state.user.id)
     .maybeSingle();
 
-
-  if (error)
+  if(error){
     throw error;
-
-
-  return data;
-}
-
-
-async function ensureProfile() {
-
-  if (!state.user)
-    return null;
-
-
-  const {
-    data,
-    error
-  } = await db
-    .from("profiles")
-    .select("id, username")
-    .eq(
-      "id",
-      state.user.id
-    )
-    .maybeSingle();
-
-
-  if (error)
-    throw error;
-
-
-  if (data)
-    return data;
-
-
-  const metadataUsername =
-    normalizeUsername(
-      state.user.user_metadata &&
-      state.user.user_metadata.username
-    );
-
-
-  if (!metadataUsername) {
-
-    throw new Error(
-      "Профиль пользователя не найден."
-    );
   }
 
+  if(data){
+    return data;
+  }
 
-  const result =
+  const username =
+    state.user.user_metadata?.username ||
+    "user_" + state.user.id.slice(0,8);
+
+  const {data:created,error:createError} =
     await db
       .from("profiles")
       .insert({
-        id: state.user.id,
-        username: metadataUsername
+        id:state.user.id,
+        username:username
       })
-      .select(
-        "id, username"
-      )
+      .select("id,username")
       .single();
 
+  if(createError){
+    throw createError;
+  }
 
-  if (result.error)
-    throw result.error;
-
-
-  return result.data;
+  return created;
 }
 
 
-/* =========================
-   REGISTER
-========================= */
+async function register(username,password){
 
-async function register(
-  username,
-  password
-) {
+  username = normalizeUsername(username);
 
-  const normalized =
-    normalizeUsername(username);
-
-
-  if (
-    !validUsername(normalized)
-  ) {
-
+  if(username.length < 3){
     throw new Error(
-      "Username: 3–32 символа, только латинские буквы, цифры, _, -, ."
+      "Имя пользователя должно содержать минимум 3 символа."
+    );
+  }
+
+  if(!/^[a-z0-9_]+$/i.test(username)){
+    throw new Error(
+      "Используй только буквы, цифры и _."
+    );
+  }
+
+  if(password.length < 6){
+    throw new Error(
+      "Пароль должен быть минимум 6 символов."
     );
   }
 
 
-  if (
-    password.length < 6
-  ) {
+  const {data:existing,error:searchError} =
+    await db
+      .from("profiles")
+      .select("id")
+      .eq("username",username)
+      .maybeSingle();
 
+  if(searchError){
+    throw searchError;
+  }
+
+  if(existing){
     throw new Error(
-      "Пароль должен содержать минимум 6 символов."
+      "Такое имя пользователя уже занято."
     );
   }
 
 
-  const existing =
-    await findProfileByUsername(
-      normalized
-    );
+  const email = authEmail(username);
 
-
-  if (existing) {
-
-    throw new Error(
-      "Этот username уже занят."
-    );
-  }
-
-
-  const email =
-    usernameEmail(
-      normalized
-    );
-
-
-  const {
-    data,
-    error
-  } =
+  const {data,error} =
     await db.auth.signUp({
-
-      email,
-
-      password,
-
-      options: {
-        data: {
-          username:
-            normalized
+      email:email,
+      password:password,
+      options:{
+        data:{
+          username:username
         }
       }
-
     });
 
-
-  if (error)
+  if(error){
     throw error;
+  }
 
 
-  if (!data.user) {
-
+  if(!data.user){
     throw new Error(
       "Supabase не создал пользователя."
     );
   }
 
 
-  if (!data.session) {
+  if(data.session){
 
-    throw new Error(
-      "Регистрация создана, но Supabase запросил подтверждение email. Отключи Email Confirmation в Supabase → Authentication → Providers → Email."
-    );
-  }
-
-
-  state.session =
-    data.session;
-
-  state.user =
-    data.user;
-
-  state.profile =
-    await ensureProfile();
-}
-
-
-/* =========================
-   LOGIN
-========================= */
-
-async function login(
-  username,
-  password
-) {
-
-  const normalized =
-    normalizeUsername(username);
-
-
-  if (
-    !normalized ||
-    !password
-  ) {
-
-    throw new Error(
-      "Введите username и пароль."
-    );
-  }
-
-
-  /*
-    НЕ ищем профиль ДО входа.
-
-    Это важно для RLS:
-    авторизация должна происходить
-    через Supabase Auth.
-  */
-
-  const email =
-    usernameEmail(
-      normalized
-    );
-
-
-  const {
-    data,
-    error
-  } =
-    await db.auth.signInWithPassword({
-
-      email,
-
-      password
-
-    });
-
-
-  if (error)
-    throw error;
-
-
-  if (
-    !data.session ||
-    !data.user
-  ) {
-
-    throw new Error(
-      "Supabase не вернул сессию."
-    );
-  }
-
-
-  state.session =
-    data.session;
-
-  state.user =
-    data.user;
-
-
-  /*
-    После успешного входа
-    получаем профиль.
-  */
-
-  try {
-
-    state.profile =
-      await findProfileByUsername(
-        normalized
-      );
-
-  } catch (error) {
-
-    console.error(error);
-
-    state.profile = null;
-  }
-
-
-  if (!state.profile) {
+    state.session = data.session;
+    state.user = data.session.user;
 
     state.profile =
       await ensureProfile();
-  }
-}
 
-
-/* =========================
-   USERS
-========================= */
-
-async function loadProfiles() {
-
-  const {
-    data,
-    error
-  } = await db
-    .from("profiles")
-    .select(
-      "id, username"
-    )
-    .neq(
-      "id",
-      state.user.id
-    )
-    .order(
-      "username",
-      {
-        ascending: true
-      }
-    );
-
-
-  if (error)
-    throw error;
-
-
-  state.profiles =
-    data || [];
-
-
-  renderProfiles();
-}
-
-
-function renderProfiles() {
-
-  const query =
-    normalizeUsername(
-      $("userSearch").value
-    );
-
-
-  const list =
-    state.profiles.filter(
-      p =>
-        !query ||
-        p.username
-          .toLowerCase()
-          .includes(query)
-    );
-
-
-  const container =
-    $("userList");
-
-
-  container.innerHTML = "";
-
-
-  if (!list.length) {
-
-    const empty =
-      document.createElement(
-        "div"
-      );
-
-    empty.className =
-      "muted";
-
-    empty.style.padding =
-      "16px 10px";
-
-    empty.textContent =
-      query
-        ? "Ничего не найдено."
-        : "Пока нет других пользователей.";
-
-    container.appendChild(
-      empty
-    );
+    await enterApp(data.session);
 
     return;
   }
 
 
-  for (
-    const profile of list
-  ) {
+  throw new Error(
+    "Аккаунт создан, но Supabase не выдал сессию. Проверь, что подтверждение Email отключено в Authentication → Providers → Email."
+  );
+}
 
-    const button =
-      document.createElement(
-        "button"
+
+async function login(username,password){
+
+  username = normalizeUsername(username);
+
+  if(!username || !password){
+    throw new Error("Введите имя пользователя и пароль.");
+  }
+
+  const email = authEmail(username);
+
+  const {data,error} =
+    await db.auth.signInWithPassword({
+      email:email,
+      password:password
+    });
+
+  if(error){
+    throw error;
+  }
+
+  if(!data.session){
+    throw new Error("Сессия не создана.");
+  }
+
+  await enterApp(data.session);
+}
+
+
+async function enterApp(session){
+
+  if(!session || !session.user){
+    setScreen(false);
+    return;
+  }
+
+  if(booting){
+    return;
+  }
+
+  booting = true;
+
+  try{
+
+    state.session = session;
+    state.user = session.user;
+
+    setScreen(true);
+
+    $("currentUser").textContent =
+      "Загрузка профиля...";
+
+
+    try{
+
+      state.profile =
+        await ensureProfile();
+
+      $("currentUser").textContent =
+        "@" + state.profile.username;
+
+    }catch(profileError){
+
+      console.error(
+        "PROFILE ERROR:",
+        profileError
       );
 
-    button.type =
-      "button";
+      $("currentUser").textContent =
+        "Профиль не загрузился";
 
-    button.className =
-      "user-item" +
-      (
-        state.selectedUser &&
-        state.selectedUser.id === profile.id
-          ? " active"
-          : ""
-      );
-
-
-    button.innerHTML =
-      '<span class="avatar">' +
-      escapeHtml(
-        initials(
-          profile.username
-        )
-      ) +
-      '</span>' +
-
-      '<span class="user-name">' +
-      escapeHtml(
-        profile.username
-      ) +
-      "</span>";
+      /*
+        ВАЖНО:
+        здесь НЕТ signOut().
+        Если профиль временно не загрузился,
+        пользователь всё равно остаётся авторизован.
+      */
+    }
 
 
-    button.addEventListener(
-      "click",
-      () =>
-        openChat(profile)
+    await loadProfiles();
+
+    setupRealtime();
+
+  }catch(error){
+
+    console.error(
+      "ENTER APP ERROR:",
+      error
     );
 
+  }finally{
 
-    container.appendChild(
-      button
-    );
+    booting = false;
+
   }
 }
 
 
-/* =========================
-   CHAT
-========================= */
+async function loadProfiles(){
 
-async function openChat(
-  profile
-) {
+  const {data,error} =
+    await db
+      .from("profiles")
+      .select("id,username")
+      .neq("id",state.user.id)
+      .order("username");
 
-  state.selectedUser =
-    profile;
+  if(error){
+    console.error(
+      "PROFILES ERROR:",
+      error
+    );
+
+    $("users").innerHTML =
+      '<div class="empty">Не удалось загрузить пользователей.<br>Проверь RLS в Supabase.</div>';
+
+    return;
+  }
+
+  renderUsers(data || []);
+}
 
 
-  $("chatAvatar")
-    .textContent =
-    initials(
-      profile.username
+function renderUsers(users){
+
+  const search =
+    $("searchInput")
+      .value
+      .trim()
+      .toLowerCase();
+
+  const filtered =
+    users.filter(user =>
+      user.username
+        .toLowerCase()
+        .includes(search)
     );
 
 
-  $("chatUser")
-    .textContent =
-    profile.username;
+  if(!filtered.length){
+
+    $("users").innerHTML =
+      '<div class="empty">Пользователи не найдены.</div>';
+
+    return;
+  }
 
 
-  $("messageInput")
-    .disabled = false;
+  $("users").innerHTML =
+    filtered.map(user => {
+
+      const active =
+        state.selectedUser?.id === user.id
+          ? "active"
+          : "";
+
+      return `
+        <div
+          class="user ${active}"
+          data-id="${escapeHtml(user.id)}"
+        >
+          <div class="userName">
+            @${escapeHtml(user.username)}
+          </div>
+
+          <div class="userId">
+            Личный чат
+          </div>
+        </div>
+      `;
+
+    }).join("");
 
 
-  $("sendBtn")
-    .disabled = false;
+  document
+    .querySelectorAll(".user")
+    .forEach(element => {
+
+      element.addEventListener(
+        "click",
+        () => {
+
+          const user =
+            users.find(
+              x => x.id === element.dataset.id
+            );
+
+          if(user){
+            openChat(user);
+          }
+
+        }
+      );
+
+    });
+}
 
 
-  renderProfiles();
+async function openChat(user){
 
+  state.selectedUser = user;
 
-  $("app")
-    .classList
-    .add("chat-open");
+  $("app").classList.add("chatOpen");
 
+  $("chatTitle").textContent =
+    "@" + user.username;
+
+  renderUsersFromCurrentList();
 
   await loadMessages();
 
-
-  subscribeRealtime();
-
-
-  scrollMessages();
+  subscribeCurrentChat();
 }
 
 
-function backToUsers() {
+function renderUsersFromCurrentList(){
 
-  $("app")
-    .classList
-    .remove("chat-open");
-
-
-  state.selectedUser =
-    null;
-
-  state.messages = [];
+  loadProfiles();
+}
 
 
-  $("messageInput")
-    .disabled = true;
+async function loadMessages(){
+
+  if(!state.selectedUser){
+    return;
+  }
+
+  const otherId =
+    state.selectedUser.id;
 
 
-  $("sendBtn")
-    .disabled = true;
+  const {data,error} =
+    await db
+      .from("messages")
+      .select("*")
+      .or(
+        `and(sender_id.eq.${state.user.id},receiver_id.eq.${otherId}),and(sender_id.eq.${otherId},receiver_id.eq.${state.user.id})`
+      )
+      .order("created_at",{ascending:true});
+
+  if(error){
+
+    console.error(
+      "MESSAGES ERROR:",
+      error
+    );
+
+    $("messages").innerHTML =
+      '<div class="empty">Не удалось загрузить сообщения.<br>Проверь RLS.</div>';
+
+    return;
+  }
 
 
-  $("chatUser")
-    .textContent =
-    "Выберите пользователя";
+  state.messages = data || [];
+
+  await renderMessages();
+}
 
 
-  $("chatAvatar")
-    .textContent = "?";
+async function renderMessages(){
+
+  if(!state.messages.length){
+
+    $("messages").innerHTML =
+      '<div class="empty">Сообщений пока нет.<br>Напиши первым.</div>';
+
+    return;
+  }
+
+
+  const html = [];
+
+  for(const message of state.messages){
+
+    const mine =
+      message.sender_id === state.user.id;
+
+    let body =
+      message.body || "";
+
+    let attachment = null;
+
+    if(body.startsWith("[[ATTACHMENT]]")){
+
+      try{
+
+        attachment =
+          JSON.parse(
+            body.replace(
+              "[[ATTACHMENT]]",
+              ""
+            )
+          );
+
+      }catch(error){
+
+        console.error(
+          "Attachment JSON error:",
+          error
+        );
+
+      }
+
+      body = "";
+    }
+
+
+    let attachmentHtml = "";
+
+    if(attachment){
+
+      try{
+
+        const {data,error} =
+          await db.storage
+            .from("attachments")
+            .createSignedUrl(
+              attachment.path,
+              3600
+            );
+
+        if(error){
+          throw error;
+        }
+
+        const url = data.signedUrl;
+
+        if(
+          attachment.type &&
+          attachment.type.startsWith("image/")
+        ){
+
+          attachmentHtml = `
+            <div class="attachment">
+              <img
+                src="${escapeHtml(url)}"
+                alt="${escapeHtml(attachment.name)}"
+              >
+            </div>
+          `;
+
+        }else if(
+          attachment.type &&
+          attachment.type.startsWith("audio/")
+        ){
+
+          attachmentHtml = `
+            <div class="attachment">
+              <audio controls src="${escapeHtml(url)}"></audio>
+            </div>
+          `;
+
+        }else{
+
+          attachmentHtml = `
+            <div class="attachment">
+              <a
+                class="fileLink"
+                href="${escapeHtml(url)}"
+                target="_blank"
+                rel="noopener"
+              >
+                📎 ${escapeHtml(attachment.name)}
+              </a>
+            </div>
+          `;
+
+        }
+
+      }catch(error){
+
+        console.error(
+          "SIGNED URL ERROR:",
+          error
+        );
+
+        attachmentHtml =
+          '<div class="attachment">Не удалось открыть файл</div>';
+      }
+    }
+
+
+    html.push(`
+      <div class="messageRow ${mine ? "mine" : ""}">
+        <div class="message">
+
+          ${
+            body
+              ? `<div class="messageText">${escapeHtml(body)}</div>`
+              : ""
+          }
+
+          ${attachmentHtml}
+
+          <div class="messageTime">
+            ${formatTime(message.created_at)}
+          </div>
+
+        </div>
+      </div>
+    `);
+  }
 
 
   $("messages").innerHTML =
-    '<div class="empty-chat">' +
-    'Выберите пользователя слева, чтобы начать чат.' +
-    '</div>';
+    html.join("");
 
-
-  unsubscribeRealtime();
+  $("messages").scrollTop =
+    $("messages").scrollHeight;
 }
 
 
-/* =========================
-   MESSAGES
-========================= */
+async function sendMessage(){
 
-function renderMessages() {
-
-  const container =
-    $("messages");
-
-
-  container.innerHTML = "";
-
-
-  if (!state.selectedUser) {
-
-    container.innerHTML =
-      '<div class="empty-chat">' +
-      'Выберите пользователя слева, чтобы начать чат.' +
-      '</div>';
-
+  if(!state.selectedUser){
+    alert("Сначала выбери пользователя.");
     return;
   }
 
 
-  if (!state.messages.length) {
-
-    container.innerHTML =
-      '<div class="empty-chat">' +
-      'Сообщений пока нет. Напишите первым.' +
-      '</div>';
-
-    return;
-  }
-
-
-  for (
-    const message of state.messages
-  ) {
-
-    const mine =
-      message.sender_id ===
-      state.user.id;
-
-
-    const wrapper =
-      document.createElement(
-        "div"
-      );
-
-
-    wrapper.className =
-      "message" +
-      (
-        mine
-          ? " mine"
-          : ""
-      );
-
-
-    const attachment =
-      parseAttachment(
-        message.body
-      );
-
-
-    if (attachment) {
-
-      const content =
-        document.createElement(
-          "div"
-        );
-
-      content.className =
-        "attachment";
-
-
-      const label =
-        document.createElement(
-          "div"
-        );
-
-      label.className =
-        "muted";
-
-      label.textContent =
-        attachment.name;
-
-
-      content.appendChild(
-        label
-      );
-
-
-      const loading =
-        document.createElement(
-          "div"
-        );
-
-      loading.className =
-        "muted";
-
-      loading.textContent =
-        "Загрузка вложения...";
-
-
-      content.appendChild(
-        loading
-      );
-
-
-      wrapper.appendChild(
-        content
-      );
-
-
-      createAttachmentElement(
-        wrapper,
-        content,
-        attachment
-      );
-
-    } else {
-
-      const text =
-        document.createElement(
-          "div"
-        );
-
-      text.className =
-        "message-text";
-
-      text.textContent =
-        message.body || "";
-
-
-      wrapper.appendChild(
-        text
-      );
-    }
-
-
-    const time =
-      document.createElement(
-        "span"
-      );
-
-    time.className =
-      "message-time";
-
-    time.textContent =
-      formatTime(
-        message.created_at
-      );
-
-
-    wrapper.appendChild(
-      time
-    );
-
-
-    container.appendChild(
-      wrapper
-    );
-  }
-
-
-  scrollMessages();
-}
-
-
-/* =========================
-   ATTACHMENT
-========================= */
-
-async function createAttachmentElement(
-  wrapper,
-  container,
-  attachment
-) {
-
-  try {
-
-    const {
-      data,
-      error
-    } =
-      await db.storage
-        .from(BUCKET)
-        .createSignedUrl(
-          attachment.path,
-          3600
-        );
-
-
-    if (error)
-      throw error;
-
-
-    const loading =
-      container.querySelector(
-        ".muted"
-      );
-
-
-    if (loading)
-      loading.remove();
-
-
-    if (
-      attachment.type ===
-      "image"
-    ) {
-
-      const image =
-        document.createElement(
-          "img"
-        );
-
-      image.src =
-        data.signedUrl;
-
-      image.alt =
-        attachment.name;
-
-      image.loading =
-        "lazy";
-
-
-      container.appendChild(
-        image
-      );
-
-
-    } else if (
-      attachment.type ===
-      "audio"
-    ) {
-
-      const audio =
-        document.createElement(
-          "audio"
-        );
-
-      audio.controls =
-        true;
-
-      audio.preload =
-        "metadata";
-
-      audio.src =
-        data.signedUrl;
-
-
-      container.appendChild(
-        audio
-      );
-
-
-    } else {
-
-      const link =
-        document.createElement(
-          "a"
-        );
-
-      link.className =
-        "file-link";
-
-      link.href =
-        data.signedUrl;
-
-      link.target =
-        "_blank";
-
-      link.rel =
-        "noopener noreferrer";
-
-      link.textContent =
-        "📄 " +
-        attachment.name +
-        " · " +
-        formatBytes(
-          attachment.size
-        );
-
-
-      container.appendChild(
-        link
-      );
-    }
-
-  } catch (error) {
-
-    const loading =
-      container.querySelector(
-        ".muted"
-      );
-
-    if (loading) {
-
-      loading.textContent =
-        "Не удалось открыть вложение.";
-    }
-
-
-    console.error(error);
-  }
-}
-
-
-/* =========================
-   LOAD MESSAGES
-========================= */
-
-async function loadMessages() {
-
-  if (
-    !state.selectedUser ||
-    !state.user
-  ) {
-    return;
-  }
-
-
-  const request =
-    ++state.messageRequest;
-
-
-  state.loadingMessages =
-    true;
-
-
-  $("composerStatus")
-    .textContent =
-    "Загрузка сообщений...";
-
-
-  const otherId =
-    state.selectedUser.id;
-
-
-  const {
-    data,
-    error
-  } =
-    await db
-      .from("messages")
-      .select(
-        "id, sender_id, receiver_id, body, created_at"
-      )
-      .or(
-        "and(sender_id.eq." +
-        state.user.id +
-        ",receiver_id.eq." +
-        otherId +
-        "),and(sender_id.eq." +
-        otherId +
-        ",receiver_id.eq." +
-        state.user.id +
-        ")"
-      )
-      .order(
-        "created_at",
-        {
-          ascending: true
-        }
-      );
-
-
-  if (
-    request !==
-    state.messageRequest
-  ) {
-    return;
-  }
-
-
-  state.loadingMessages =
-    false;
-
-
-  $("composerStatus")
-    .textContent = "";
-
-
-  if (error) {
-
-    console.error(error);
-
-    $("composerStatus")
-      .textContent =
-      "Не удалось загрузить сообщения: " +
-      error.message;
-
-    return;
-  }
-
-
-  state.messages =
-    data || [];
-
-
-  renderMessages();
-}
-
-
-/* =========================
-   REALTIME
-========================= */
-
-function subscribeRealtime() {
-
-  unsubscribeRealtime();
-
-
-  if (
-    !state.selectedUser ||
-    !state.user
-  ) {
-    return;
-  }
-
-
-  const otherId =
-    state.selectedUser.id;
-
-
-  state.realtime =
-    db
-      .channel(
-        "messages-" +
-        state.user.id +
-        "-" +
-        otherId
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages"
-        },
-        payload =>
-          handleRealtimeMessage(
-            payload.new
-          )
-      )
-      .subscribe(
-        status => {
-
-          if (
-            status ===
-            "CHANNEL_ERROR"
-          ) {
-
-            console.error(
-              "Realtime channel error"
-            );
-          }
-        }
-      );
-}
-
-
-function handleRealtimeMessage(
-  message
-) {
-
-  if (
-    !state.user ||
-    !message
-  ) {
-    return;
-  }
-
-
-  const relevant =
-    (
-      message.sender_id ===
-      state.user.id &&
-
-      state.selectedUser &&
-
-      message.receiver_id ===
-      state.selectedUser.id
-    ) ||
-
-    (
-      message.receiver_id ===
-      state.user.id &&
-
-      state.selectedUser &&
-
-      message.sender_id ===
-      state.selectedUser.id
-    );
-
-
-  if (!relevant) {
-
-    if (
-      message.receiver_id ===
-      state.user.id
-    ) {
-
-      notifyIncomingMessage(
-        message
-      );
-    }
-
-    return;
-  }
-
-
-  if (
-    !state.messages.some(
-      item =>
-        item.id ===
-        message.id
-    )
-  ) {
-
-    state.messages.push(
-      message
-    );
-
-
-    state.messages.sort(
-      (a, b) =>
-        new Date(
-          a.created_at
-        ) -
-        new Date(
-          b.created_at
-        )
-    );
-
-
-    renderMessages();
-  }
-
-
-  if (
-    message.receiver_id ===
-    state.user.id
-  ) {
-
-    notifyIncomingMessage(
-      message
-    );
-  }
-}
-
-
-function unsubscribeRealtime() {
-
-  if (state.realtime) {
-
-    db.removeChannel(
-      state.realtime
-    );
-
-    state.realtime =
-      null;
-  }
-}
-
-
-/* =========================
-   SEND TEXT
-========================= */
-
-async function sendText() {
-
-  if (
-    !state.selectedUser ||
-    !state.user
-  ) {
-    return;
-  }
-
-
-  const body =
+  const text =
     $("messageInput")
       .value
       .trim();
 
 
-  if (!body)
+  if(!text && !state.attachment){
     return;
+  }
 
 
-  $("sendBtn")
-    .disabled = true;
+  let body = text;
 
 
-  const {
-    data,
-    error
-  } =
+  if(state.attachment){
+
+    body =
+      "[[ATTACHMENT]]" +
+      JSON.stringify(
+        state.attachment
+      );
+
+  }
+
+
+  const {data,error} =
     await db
       .from("messages")
       .insert({
-
-        sender_id:
-          state.user.id,
-
-        receiver_id:
-          state.selectedUser.id,
-
-        body
-
+        sender_id:state.user.id,
+        receiver_id:state.selectedUser.id,
+        body:body
       })
-      .select(
-        "id, sender_id, receiver_id, body, created_at"
-      )
+      .select()
       .single();
 
 
-  $("sendBtn")
-    .disabled = false;
+  if(error){
 
+    console.error(
+      "SEND ERROR:",
+      error
+    );
 
-  if (error) {
-
-    $("composerStatus")
-      .textContent =
-      "Ошибка отправки: " +
-      error.message;
+    alert(
+      "Не удалось отправить сообщение:\n" +
+      error.message
+    );
 
     return;
   }
 
 
-  $("messageInput")
-    .value = "";
+  $("messageInput").value = "";
 
+  state.attachment = null;
 
-  autoResizeTextarea();
+  $("attachPreview").textContent = "";
 
+  if(data){
 
-  if (
-    data &&
-    !state.messages.some(
-      item =>
-        item.id ===
-        data.id
-    )
-  ) {
+    const already =
+      state.messages.some(
+        x => x.id === data.id
+      );
 
-    state.messages.push(
-      data
-    );
+    if(!already){
 
-    renderMessages();
+      state.messages.push(data);
+
+      await renderMessages();
+
+    }
+
   }
 }
 
 
-/* =========================
-   FILES
-========================= */
+async function uploadFile(file){
 
-async function sendAttachment(
-  file
-) {
-
-  if (
-    !state.selectedUser ||
-    !state.user ||
-    !file
-  ) {
+  if(!state.selectedUser){
+    alert("Сначала выбери пользователя.");
     return;
   }
 
 
-  if (
-    file.size >
-    MAX_FILE_SIZE
-  ) {
-
-    $("composerStatus")
-      .textContent =
-      "Файл слишком большой. Максимум 50 МБ.";
-
+  if(!file){
     return;
   }
 
 
-  const type =
-    attachmentType(file);
+  const MAX_SIZE =
+    50 * 1024 * 1024;
 
 
-  if (!type) {
+  if(file.size > MAX_SIZE){
 
-    $("composerStatus")
-      .textContent =
-      "Этот тип файла не поддерживается.";
+    alert(
+      "Максимальный размер файла — 50 МБ."
+    );
 
     return;
   }
 
 
-  const safeName =
-    file.name
-      .replace(
-        /[^a-zA-Z0-9._-]/g,
-        "_"
-      )
-      .slice(-120) ||
-    "file";
+  $("attachPreview").textContent =
+    "Загрузка: " + file.name;
 
 
-  const randomPart =
-    crypto.randomUUID
-      ? crypto.randomUUID()
-      : Date.now().toString(36) +
-        Math.random()
-          .toString(36)
-          .slice(2);
+  const extension =
+    file.name.includes(".")
+      ? "." +
+        file.name
+          .split(".")
+          .pop()
+          .toLowerCase()
+      : "";
 
 
   const path =
     state.user.id +
     "/" +
-    randomPart +
-    "_" +
-    safeName;
+    crypto.randomUUID() +
+    extension;
 
 
-  $("composerStatus")
-    .textContent =
-    "Загрузка файла...";
+  const {error} =
+    await db.storage
+      .from("attachments")
+      .upload(
+        path,
+        file,
+        {
+          cacheControl:"3600",
+          upsert:false,
+          contentType:file.type || "application/octet-stream"
+        }
+      );
 
 
-  $("attachBtn")
-    .disabled = true;
+  if(error){
 
-
-  try {
-
-    const {
-      error: uploadError
-    } =
-      await db.storage
-        .from(BUCKET)
-        .upload(
-          path,
-          file,
-          {
-            cacheControl:
-              "3600",
-
-            upsert:
-              false,
-
-            contentType:
-              file.type ||
-              "application/octet-stream"
-          }
-        );
-
-
-    if (uploadError)
-      throw uploadError;
-
-
-    const body =
-      ATTACHMENT_PREFIX +
-      JSON.stringify({
-
-        type,
-
-        name:
-          file.name,
-
-        size:
-          file.size,
-
-        mime:
-          file.type ||
-          "application/octet-stream",
-
-        path
-      });
-
-
-    const {
-      data,
+    console.error(
+      "UPLOAD ERROR:",
       error
-    } =
-      await db
-        .from("messages")
-        .insert({
+    );
 
-          sender_id:
-            state.user.id,
+    $("attachPreview").textContent = "";
 
-          receiver_id:
-            state.selectedUser.id,
+    alert(
+      "Ошибка загрузки файла:\n" +
+      error.message
+    );
 
-          body
-
-        })
-        .select(
-          "id, sender_id, receiver_id, body, created_at"
-        )
-        .single();
-
-
-    if (error)
-      throw error;
-
-
-    if (
-      data &&
-      !state.messages.some(
-        item =>
-          item.id ===
-          data.id
-      )
-    ) {
-
-      state.messages.push(
-        data
-      );
-
-      renderMessages();
-    }
-
-
-    $("fileInput")
-      .value = "";
-
-
-    $("composerStatus")
-      .textContent = "";
-
-  } catch (error) {
-
-    console.error(error);
-
-    $("composerStatus")
-      .textContent =
-      "Ошибка вложения: " +
-      error.message;
-
-  } finally {
-
-    $("attachBtn")
-      .disabled = false;
+    return;
   }
+
+
+  state.attachment = {
+    path:path,
+    name:file.name,
+    type:file.type || "application/octet-stream",
+    size:file.size
+  };
+
+
+  $("attachPreview").textContent =
+    "Файл готов: " + file.name;
 }
 
 
-/* =========================
-   VOICE
-========================= */
+function setupRealtime(){
 
-async function toggleVoiceRecording() {
+  if(state.channel){
 
-  if (
-    state.recording
-  ) {
+    try{
+      db.removeChannel(state.channel);
+    }catch(error){
+      console.error(error);
+    }
 
-    state.mediaRecorder.stop();
-
-    return;
+    state.channel = null;
   }
 
 
-  if (
-    !navigator.mediaDevices ||
-    !navigator.mediaDevices.getUserMedia ||
-    !window.MediaRecorder
-  ) {
-
-    $("composerStatus")
-      .textContent =
-      "Этот браузер не поддерживает запись голоса.";
-
-    return;
-  }
-
-
-  if (
-    !state.selectedUser
-  ) {
-    return;
-  }
-
-
-  try {
-
-    const stream =
-      await navigator.mediaDevices
-        .getUserMedia({
-          audio: true
-        });
-
-
-    state.audioChunks =
-      [];
-
-
-    const preferred =
-      MediaRecorder.isTypeSupported(
-        "audio/webm;codecs=opus"
+  state.channel =
+    db
+      .channel(
+        "messages-" +
+        state.user.id +
+        "-" +
+        crypto.randomUUID()
       )
-        ? "audio/webm;codecs=opus"
-        : "";
+      .on(
+        "postgres_changes",
+        {
+          event:"INSERT",
+          schema:"public",
+          table:"messages"
+        },
+        async payload => {
+
+          const message =
+            payload.new;
 
 
-    state.mediaRecorder =
-      preferred
-        ? new MediaRecorder(
-            stream,
-            {
-              mimeType:
-                preferred
-            }
-          )
-        : new MediaRecorder(
-            stream
-          );
+          const relevant =
+            message.sender_id === state.user.id ||
+            message.receiver_id === state.user.id;
 
 
-    state.mediaRecorder
-      .ondataavailable =
-      event => {
-
-        if (
-          event.data &&
-          event.data.size
-        ) {
-
-          state.audioChunks.push(
-            event.data
-          );
-        }
-      };
+          if(!relevant){
+            return;
+          }
 
 
-    state.mediaRecorder
-      .onstop =
-      async () => {
+          if(
+            state.selectedUser &&
+            (
+              (
+                message.sender_id === state.user.id &&
+                message.receiver_id === state.selectedUser.id
+              )
+              ||
+              (
+                message.receiver_id === state.user.id &&
+                message.sender_id === state.selectedUser.id
+              )
+            )
+          ){
 
-        state.recording =
-          false;
+            const exists =
+              state.messages.some(
+                x => x.id === message.id
+              );
 
+            if(!exists){
 
-        $("voiceBtn")
-          .classList
-          .remove(
-            "recording"
-          );
+              state.messages.push(message);
 
+              await renderMessages();
 
-        $("voiceBtn")
-          .textContent =
-          "🎙️";
+              if(
+                document.hidden &&
+                message.sender_id !== state.user.id
+              ){
 
+                showNotification(
+                  "Новое сообщение",
+                  "Вам пришло новое сообщение"
+                );
 
-        stream
-          .getTracks()
-          .forEach(
-            track =>
-              track.stop()
-          );
-
-
-        const mime =
-          state.mediaRecorder
-            .mimeType ||
-          "audio/webm";
-
-
-        const blob =
-          new Blob(
-            state.audioChunks,
-            {
-              type: mime
-            }
-          );
-
-
-        state.mediaRecorder =
-          null;
-
-
-        if (blob.size) {
-
-          const extension =
-            mime.includes("ogg")
-              ? "ogg"
-              : "webm";
-
-
-          const file =
-            new File(
-              [blob],
-              "voice_" +
-              Date.now() +
-              "." +
-              extension,
-              {
-                type: mime
               }
-            );
 
+            }
 
-          await sendAttachment(
-            file
-          );
+          }
+
         }
-      };
-
-
-    state.mediaRecorder.start();
-
-
-    state.recording =
-      true;
-
-
-    $("voiceBtn")
-      .classList
-      .add(
-        "recording"
-      );
-
-
-    $("voiceBtn")
-      .textContent =
-      "⏹️";
-
-
-    $("composerStatus")
-      .textContent =
-      "Идёт запись... Нажмите 🎙️ ещё раз для остановки.";
-
-  } catch (error) {
-
-    console.error(error);
-
-    $("composerStatus")
-      .textContent =
-      "Нет доступа к микрофону.";
-  }
+      )
+      .subscribe();
 }
 
 
-/* =========================
-   UTILS
-========================= */
+function showNotification(title,text){
 
-function formatBytes(bytes) {
-
-  if (
-    !Number.isFinite(bytes) ||
-    bytes < 0
-  ) {
-    return "";
-  }
-
-
-  if (
-    bytes < 1024
-  ) {
-    return bytes + " Б";
-  }
-
-
-  const units =
-    ["КБ", "МБ", "ГБ"];
-
-
-  let value =
-    bytes / 1024;
-
-
-  let index = 0;
-
-
-  while (
-    value >= 1024 &&
-    index <
-      units.length - 1
-  ) {
-
-    value /= 1024;
-
-    index += 1;
-  }
-
-
-  return (
-    value.toFixed(
-      value >= 10
-        ? 0
-        : 1
-    ) +
-    " " +
-    units[index]
-  );
-}
-
-
-function scrollMessages() {
-
-  const container =
-    $("messages");
-
-
-  requestAnimationFrame(
-    () => {
-
-      container.scrollTop =
-        container.scrollHeight;
-    }
-  );
-}
-
-
-function autoResizeTextarea() {
-
-  const input =
-    $("messageInput");
-
-
-  input.style.height =
-    "auto";
-
-
-  input.style.height =
-    Math.min(
-      input.scrollHeight,
-      130
-    ) + "px";
-}
-
-
-/* =========================
-   NOTIFICATIONS
-========================= */
-
-async function requestNotifications() {
-
-  if (
+  if(
     !("Notification" in window)
-  ) {
-
-    $("notificationText")
-      .textContent =
-      "Этот браузер не поддерживает Notification API.";
-
-    $("notificationModal")
-      .classList
-      .remove("hidden");
-
+  ){
     return;
   }
 
+  if(
+    Notification.permission === "granted"
+  ){
 
-  if (
-    Notification.permission ===
-    "granted"
-  ) {
+    new Notification(
+      title,
+      {
+        body:text
+      }
+    );
 
-    $("notificationText")
-      .textContent =
-      "Уведомления уже разрешены.";
-
-    $("notificationAllow")
-      .classList
-      .add("hidden");
-
-    $("notificationModal")
-      .classList
-      .remove("hidden");
-
-    return;
   }
-
-
-  $("notificationAllow")
-    .classList
-    .remove("hidden");
-
-
-  $("notificationText")
-    .textContent =
-    "Разрешите уведомления браузера. Они будут показываться при новых сообщениях, когда вкладка скрыта.";
-
-
-  $("notificationModal")
-    .classList
-    .remove("hidden");
 }
 
 
-async function allowNotifications() {
+async function enableNotifications(){
 
-  if (
+  if(
     !("Notification" in window)
-  ) {
+  ){
+    alert(
+      "Этот браузер не поддерживает уведомления."
+    );
     return;
   }
 
 
   const permission =
-    await Notification
-      .requestPermission();
+    await Notification.requestPermission();
 
 
-  $("notificationText")
-    .textContent =
-    permission === "granted"
-      ? "Уведомления разрешены."
-      : "Разрешение не предоставлено.";
+  if(permission === "granted"){
 
+    alert(
+      "Уведомления включены."
+    );
 
-  if (
-    permission === "granted"
-  ) {
-
-    $("notificationAllow")
-      .classList
-      .add("hidden");
   }
 }
 
 
-async function notifyIncomingMessage(
-  message
-) {
+async function startRecording(){
 
-  if (
-    document.visibilityState ===
-      "visible" ||
+  if(!state.selectedUser){
 
-    !("Notification" in window) ||
-
-    Notification.permission !==
-      "granted"
-  ) {
+    alert(
+      "Сначала выбери пользователя."
+    );
 
     return;
   }
 
 
-  let senderName =
-    "Новое сообщение";
+  if(!navigator.mediaDevices?.getUserMedia){
 
-
-  const sender =
-    state.profiles.find(
-      p =>
-        p.id ===
-        message.sender_id
+    alert(
+      "Браузер не поддерживает запись голоса."
     );
 
-
-  if (sender) {
-    senderName =
-      sender.username;
+    return;
   }
 
 
-  let body =
-    "Новое сообщение";
+  try{
+
+    recordingStream =
+      await navigator.mediaDevices.getUserMedia({
+        audio:true
+      });
 
 
-  const attachment =
-    parseAttachment(
-      message.body
-    );
-
-
-  if (attachment) {
-
-    body =
-      "📎 " +
-      attachment.name;
-
-  } else if (
-    message.body
-  ) {
-
-    body =
-      message.body.slice(
-        0,
-        120
-      );
-  }
-
-
-  try {
-
-    const notification =
-      new Notification(
-        senderName,
-        {
-          body,
-
-          tag:
-            "message-" +
-            message.id
-        }
+    recorder =
+      new MediaRecorder(
+        recordingStream
       );
 
 
-    notification.onclick =
-      () => {
-
-        window.focus();
+    recorderChunks = [];
 
 
-        if (sender) {
+    recorder.ondataavailable =
+      event => {
 
-          openChat(
-            sender
+        if(event.data.size > 0){
+
+          recorderChunks.push(
+            event.data
           );
+
         }
 
-
-        notification.close();
       };
 
-  } catch (error) {
 
-    console.error(error);
-  }
-}
-
-
-/* =========================
-   LOGOUT
-========================= */
-
-async function logout() {
-
-  unsubscribeRealtime();
-
-
-  if (
-    state.recording &&
-    state.mediaRecorder
-  ) {
-
-    state.mediaRecorder.stop();
-  }
-
-
-  await db.auth.signOut();
-
-
-  state.session =
-    null;
-
-  state.user =
-    null;
-
-  state.profile =
-    null;
-
-  state.profiles =
-    [];
-
-  state.selectedUser =
-    null;
-
-  state.messages =
-    [];
-
-
-  $("app")
-    .classList
-    .remove(
-      "chat-open"
-    );
-
-
-  setScreen(false);
-}
-
-
-/* =========================
-   ENTER APP
-========================= */
-
-async function enterApp(
-  session
-) {
-
-  if (
-    !session ||
-    !session.user
-  ) {
-    return;
-  }
-
-
-  /*
-    Защита от двойного запуска.
-  */
-
-  if (
-    state.starting &&
-    state.user &&
-    state.user.id ===
-      session.user.id
-  ) {
-    return;
-  }
-
-
-  state.starting =
-    true;
-
-
-  state.session =
-    session;
-
-
-  state.user =
-    session.user;
-
-
-  try {
-
-    /*
-      САМОЕ ВАЖНОЕ:
-
-      Показываем приложение ДО загрузки
-      профиля и пользователей.
-
-      Если RLS/сеть временно даст ошибку,
-      пользователь не будет выглядеть
-      как будто его выбросило из аккаунта.
-    */
-
-    setScreen(true);
-
-
-    state.profile =
-      await ensureProfile();
-
-
-    $("currentUser")
-      .textContent =
-      "Вы вошли как @" +
-      state.profile.username;
-
-
-    try {
-
-      await loadProfiles();
-
-    } catch (profilesError) {
-
-      console.error(
-        profilesError
-      );
-
-
-      state.profiles =
-        [];
-
-
-      renderProfiles();
-
-
-      $("composerStatus")
-        .textContent =
-        "Список пользователей временно не загрузился.";
-    }
-
-
-    if (
-      "Notification" in window &&
-      Notification.permission ===
-        "default"
-    ) {
-
-      $("notificationBtn")
-        .title =
-        "Разрешить уведомления";
-    }
-
-  } catch (error) {
-
-    console.error(error);
-
-
-    /*
-      НИКАКОГО signOut() здесь.
-
-      Даже если profiles/RLS временно
-      сломался, сессию не удаляем.
-    */
-
-    $("currentUser")
-      .textContent =
-      "Профиль временно не загрузился";
-
-
-    showAuthError(
-      "Профиль временно не загрузился: " +
-      (
-        error.message ||
-        "неизвестная ошибка"
-      )
-    );
-
-  } finally {
-
-    state.starting =
-      false;
-  }
-}
-
-
-/* =========================
-   EVENTS
-========================= */
-
-$("loginTab")
-  .addEventListener(
-    "click",
-    () =>
-      setMode("login")
-  );
-
-
-$("registerTab")
-  .addEventListener(
-    "click",
-    () =>
-      setMode("register")
-  );
-
-
-$("authForm")
-  .addEventListener(
-    "submit",
-    async event => {
-
-      event.preventDefault();
-
-
-      const username =
-        normalizeUsername(
-          $("username").value
-        );
-
-
-      const password =
-        $("password").value;
-
-
-      const button =
-        $("authSubmit");
-
-
-      showAuthError("");
-
-
-      setBusy(
-        button,
-        true,
-        state.mode === "login"
-          ? "Вход..."
-          : "Регистрация..."
-      );
-
-
-      try {
-
-        if (
-          state.mode ===
-          "login"
-        ) {
-
-          await login(
-            username,
-            password
+    recorder.onstop =
+      async () => {
+
+        const blob =
+          new Blob(
+            recorderChunks,
+            {
+              type:recorder.mimeType || "audio/webm"
+            }
           );
 
-        } else {
 
-          await register(
-            username,
-            password
+        const file =
+          new File(
+            [blob],
+            "voice-" +
+            Date.now() +
+            ".webm",
+            {
+              type:blob.type
+            }
           );
+
+
+        await uploadFile(file);
+
+
+        if(recordingStream){
+
+          recordingStream
+            .getTracks()
+            .forEach(
+              track => track.stop()
+            );
+
         }
 
-
-        $("password")
-          .value = "";
+      };
 
 
-        $("username")
-          .value = "";
+    recorder.start();
+
+    $("recordButton")
+      .classList
+      .add("recording");
+
+    $("recordButton").textContent =
+      "⏹";
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "Не удалось получить доступ к микрофону."
+    );
+
+  }
+}
 
 
-        await enterApp(
-          state.session
-        );
+function stopRecording(){
 
-      } catch (error) {
+  if(
+    recorder &&
+    recorder.state !== "inactive"
+  ){
 
-        console.error(
-          error
-        );
+    recorder.stop();
 
-
-        showAuthError(
-          error.message ||
-          "Произошла ошибка."
-        );
-
-      } finally {
-
-        setBusy(
-          button,
-          false
-        );
-      }
-    }
-  );
+  }
 
 
-$("userSearch")
-  .addEventListener(
-    "input",
-    renderProfiles
-  );
+  $("recordButton")
+    .classList
+    .remove("recording");
+
+  $("recordButton").textContent =
+    "🎤";
+}
 
 
-$("backBtn")
-  .addEventListener(
-    "click",
-    backToUsers
-  );
-
-
-$("logoutBtn")
-  .addEventListener(
-    "click",
-    logout
-  );
-
-
-$("sendBtn")
-  .addEventListener(
-    "click",
-    sendText
-  );
-
-
-$("messageInput")
-  .addEventListener(
-    "input",
-    autoResizeTextarea
-  );
-
-
-$("messageInput")
-  .addEventListener(
-    "keydown",
-    event => {
-
-      if (
-        event.key ===
-          "Enter" &&
-        !event.shiftKey
-      ) {
-
-        event.preventDefault();
-
-        sendText();
-      }
-    }
-  );
-
-
-$("attachBtn")
-  .addEventListener(
-    "click",
-    () => {
-
-      if (
-        !state.selectedUser
-      ) {
-        return;
-      }
-
-
-      $("fileInput").click();
-    }
-  );
-
-
-$("fileInput")
-  .addEventListener(
-    "change",
-    event => {
-
-      const file =
-        event.target.files &&
-        event.target.files[0];
-
-
-      if (file) {
-
-        sendAttachment(
-          file
-        );
-      }
-    }
-  );
-
-
-$("voiceBtn")
-  .addEventListener(
-    "click",
-    toggleVoiceRecording
-  );
-
-
-$("notificationBtn")
-  .addEventListener(
-    "click",
-    requestNotifications
-  );
-
-
-$("notificationClose")
-  .addEventListener(
-    "click",
-    () =>
-      $("notificationModal")
-        .classList
-        .add("hidden")
-  );
-
-
-$("notificationAllow")
-  .addEventListener(
-    "click",
-    allowNotifications
-  );
-
-
-document.addEventListener(
-  "visibilitychange",
+$("loginTab").addEventListener(
+  "click",
   () => {
 
-    if (
-      document.visibilityState ===
-        "visible" &&
+    authMode = "login";
 
-      state.selectedUser &&
-      state.user
-    ) {
+    $("loginTab")
+      .classList
+      .add("active");
 
-      loadMessages();
-    }
-  }
-);
+    $("registerTab")
+      .classList
+      .remove("active");
 
+    $("authButton").textContent =
+      "Войти";
 
-/* =========================
-   SUPABASE AUTH LISTENER
-========================= */
-
-db.auth.onAuthStateChange(
-  (event, session) => {
-
-    if (
-      event ===
-      "SIGNED_OUT"
-    ) {
-
-      state.session =
-        null;
-
-      state.user =
-        null;
-
-      state.profile =
-        null;
-
-      state.profiles =
-        [];
-
-      state.selectedUser =
-        null;
-
-      state.messages =
-        [];
-
-
-      unsubscribeRealtime();
-
-
-      setScreen(false);
-
-      return;
-    }
-
-
-    if (
-      session &&
-      (
-        !state.user ||
-        state.user.id !==
-          session.user.id
-      )
-    ) {
-
-      /*
-        Не await внутри auth callback.
-      */
-
-      setTimeout(
-        () => {
-          enterApp(
-            session
-          );
-        },
-        0
+    $("password")
+      .setAttribute(
+        "autocomplete",
+        "current-password"
       );
-    }
+
+    setAuthStatus("");
+
   }
 );
 
 
-/* =========================
-   INITIAL LOAD
-========================= */
+$("registerTab").addEventListener(
+  "click",
+  () => {
 
-(async function init() {
+    authMode = "register";
 
-  try {
+    $("registerTab")
+      .classList
+      .add("active");
 
-    const {
-      data,
-      error
-    } =
-      await db.auth.getSession();
+    $("loginTab")
+      .classList
+      .remove("active");
+
+    $("authButton").textContent =
+      "Создать аккаунт";
+
+    $("password")
+      .setAttribute(
+        "autocomplete",
+        "new-password"
+      );
+
+    setAuthStatus("");
+
+  }
+);
 
 
-    if (error) {
+$("authForm").addEventListener(
+  "submit",
+  async event => {
+
+    event.preventDefault();
+
+    const username =
+      $("username").value;
+
+    const password =
+      $("password").value;
+
+
+    $("authButton").disabled = true;
+
+    setAuthStatus(
+      authMode === "login"
+        ? "Выполняется вход..."
+        : "Создание аккаунта...",
+      false
+    );
+
+
+    try{
+
+      if(authMode === "login"){
+
+        await login(
+          username,
+          password
+        );
+
+      }else{
+
+        await register(
+          username,
+          password
+        );
+
+      }
+
+      setAuthStatus(
+        "",
+        false
+      );
+
+    }catch(error){
 
       console.error(
+        "AUTH ERROR:",
         error
       );
 
-
-      setScreen(false);
-
-
-      showAuthError(
-        "Не удалось восстановить сессию: " +
-        error.message
+      setAuthStatus(
+        error.message ||
+        "Произошла ошибка."
       );
 
+    }finally{
+
+      $("authButton").disabled =
+        false;
+
+    }
+
+  }
+);
+
+
+$("searchInput").addEventListener(
+  "input",
+  () => loadProfiles()
+);
+
+
+$("sendButton").addEventListener(
+  "click",
+  sendMessage
+);
+
+
+$("messageInput").addEventListener(
+  "keydown",
+  event => {
+
+    if(
+      event.key === "Enter" &&
+      !event.shiftKey
+    ){
+
+      event.preventDefault();
+
+      sendMessage();
+
+    }
+
+  }
+);
+
+
+$("fileButton").addEventListener(
+  "click",
+  () => $("fileInput").click()
+);
+
+
+$("fileInput").addEventListener(
+  "change",
+  async event => {
+
+    const file =
+      event.target.files[0];
+
+    if(file){
+
+      await uploadFile(file);
+
+    }
+
+    event.target.value = "";
+
+  }
+);
+
+
+$("recordButton").addEventListener(
+  "click",
+  () => {
+
+    if(
+      recorder &&
+      recorder.state === "recording"
+    ){
+
+      stopRecording();
+
+    }else{
+
+      startRecording();
+
+    }
+
+  }
+);
+
+
+$("logoutButton").addEventListener(
+  "click",
+  async () => {
+
+    try{
+
+      if(state.channel){
+
+        await db.removeChannel(
+          state.channel
+        );
+
+        state.channel = null;
+
+      }
+
+      await db.auth.signOut();
+
+    }catch(error){
+
+      console.error(
+        "LOGOUT ERROR:",
+        error
+      );
+
+    }
+
+  }
+);
+
+
+$("mobileBack").addEventListener(
+  "click",
+  () => {
+
+    $("app")
+      .classList
+      .remove("chatOpen");
+
+    state.selectedUser = null;
+
+    $("chatTitle").textContent =
+      "Выберите пользователя";
+
+    $("messages").innerHTML =
+      '<div class="empty">Выберите пользователя слева,<br>чтобы начать общение.</div>';
+
+  }
+);
+
+
+db.auth.onAuthStateChange(
+  (event,session) => {
+
+    console.log(
+      "AUTH EVENT:",
+      event,
+      !!session
+    );
+
+
+    if(event === "SIGNED_OUT"){
+
+      state.session = null;
+      state.user = null;
+      state.profile = null;
+      state.selectedUser = null;
+
+      setScreen(false);
 
       return;
     }
 
 
-    if (
-      data &&
-      data.session
-    ) {
+    if(
+      session &&
+      !state.user &&
+      !booting
+    ){
 
-      /*
-        F5 → здесь должна попасть
-        сохранённая сессия.
-      */
-
-      await enterApp(
-        data.session
+      setTimeout(
+        () => enterApp(session),
+        0
       );
 
-    } else {
-
-      setScreen(false);
     }
 
-  } catch (error) {
+  }
+);
+
+
+async function init(){
+
+  setScreen(false);
+
+
+  const {
+    data,
+    error
+  } = await db.auth.getSession();
+
+
+  if(error){
 
     console.error(
+      "SESSION ERROR:",
       error
     );
 
+    return;
+  }
+
+
+  if(data?.session){
+
+    await enterApp(
+      data.session
+    );
+
+  }else{
 
     setScreen(false);
 
-
-    showAuthError(
-      "Не удалось восстановить сессию: " +
-      (
-        error.message ||
-        "неизвестная ошибка"
-      )
-    );
   }
 
-})();
+}
+
+
+init();
+
+
+/*
+  Уведомления:
+  при первом клике по странице спрашиваем разрешение.
+*/
+document.addEventListener(
+  "click",
+  () => {
+
+    if(
+      "Notification" in window &&
+      Notification.permission === "default"
+    ){
+
+      Notification.requestPermission()
+        .catch(() => {});
+
+    }
+
+  },
+  {once:true}
+);
 </script>
 
 </body>
